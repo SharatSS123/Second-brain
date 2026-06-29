@@ -1,0 +1,55 @@
+# Flutter/Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+*.iml
+
+# Android
+android/.gradle/
+android/local.properties
+android/captures/
+android/gradlew
+android/gradlew.bat
+android/gradle/
+**/android/**/GeneratedPluginRegistrant.java
+**/android/**/.cxx/
+
+# iOS
+ios/.symlinks/
+ios/Flutter/flutter_export_environment.sh
+ios/Flutter/Generated.xcconfig
+ios/Pods/
+ios/**/*.mode1v3
+ios/**/*.mode2v3
+ios/**/*.moved-aside
+ios/**/*.pbxuser
+ios/**/*.perspectivev3
+ios/**/xcuserdata
+ios/.generated/
+
+# VS Code
+.vscode/
+
+# Android Studio / IntelliJ
+.idea/
+*.ipr
+*.iws
+
+# macOS
+.DS_Store
+
+# Generated Drift files (commit the .g.dart files)
+# lib/data/database/app_database.g.dart
+
+# Python
+venv/
+.env
+__pycache__/
+*.pyc
+
+# Misc
+*.log
