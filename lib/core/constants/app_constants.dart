@@ -1,6 +1,6 @@
 class AppConstants {
-  static const appName = 'Second Brain';
-  static const dbName = 'second_brain.db';
+  static const appName = 'CORTEX';
+  static const dbName = 'cortex.db';
 
   // Padding
   static const double paddingXS = 4;

@@ -17,3 +17,11 @@ final pendingTasksProvider = StreamProvider.autoDispose<List<TasksTableData>>((r
 final completedTasksProvider = StreamProvider.autoDispose<List<TasksTableData>>((ref) {
   return ref.watch(tasksRepositoryProvider).watchByCompleted(true);
 });
+
+final todayTasksProvider = StreamProvider.autoDispose<List<TasksTableData>>((ref) {
+  return ref.watch(tasksRepositoryProvider).watchToday();
+});
+
+final upcomingTasksProvider = StreamProvider.autoDispose<List<TasksTableData>>((ref) {
+  return ref.watch(tasksRepositoryProvider).watchUpcoming();
+});

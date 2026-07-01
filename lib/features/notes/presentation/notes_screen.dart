@@ -1,79 +1,249 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../data/database/app_database.dart';
 import '../providers/notes_providers.dart';
 
-class NotesScreen extends ConsumerWidget {
+class NotesScreen extends ConsumerStatefulWidget {
   const NotesScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final async = ref.watch(allNotesProvider);
-    final repo = ref.read(notesRepositoryProvider);
+  ConsumerState<NotesScreen> createState() => _NotesScreenState();
+}
+
+class _NotesScreenState extends ConsumerState<NotesScreen> {
+  String _filter = 'All';
+
+  @override
+  Widget build(BuildContext context) {
+    final allAsync = ref.watch(allNotesProvider);
+    final pinnedAsync = ref.watch(pinnedNotesProvider);
+
+    final notesAsync = _filter == 'Pinned' ? pinnedAsync : allAsync;
 
     return Scaffold(
+      backgroundColor: AppColors.bg,
       appBar: AppBar(
+        leading: IconButton(icon: const Icon(Icons.menu_rounded), onPressed: () {}),
         title: const Text('Notes'),
         actions: [
-          IconButton(icon: const Icon(Icons.search), onPressed: () {}),
-          IconButton(icon: const Icon(Icons.sort), onPressed: () {}),
+          IconButton(icon: const Icon(Icons.search_rounded), onPressed: () {}),
+          IconButton(icon: const Icon(Icons.sort_rounded), onPressed: () {}),
         ],
       ),
-      body: async.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
-        data: (notes) {
-          if (notes.isEmpty) {
-            return const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.note_alt_outlined, size: 64, color: Colors.grey),
-                  SizedBox(height: 16),
-                  Text('No notes yet', style: TextStyle(fontSize: 18, color: Colors.grey)),
-                  SizedBox(height: 8),
-                  Text('Tap + to create your first note', style: TextStyle(color: Colors.grey)),
-                ],
-              ),
-            );
-          }
-          return ListView.builder(
-            padding: const EdgeInsets.all(8),
-            itemCount: notes.length,
-            itemBuilder: (context, i) {
-              final note = notes[i];
-              return Card(
-                child: ListTile(
-                  leading: note.isPinned
-                      ? const Icon(Icons.push_pin, color: Colors.amber)
-                      : null,
-                  title: Text(note.title, maxLines: 2, overflow: TextOverflow.ellipsis),
-                  subtitle: Text(note.content, maxLines: 1, overflow: TextOverflow.ellipsis),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete_outline),
-                    onPressed: () => repo.delete(note.id),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Filter chips
+          SizedBox(
+            height: 44,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              children: ['All', 'Pinned', 'Folders', 'Tags'].map((f) {
+                final selected = _filter == f;
+                final disabled = f == 'Folders' || f == 'Tags';
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: FilterChip(
+                    label: Text(f),
+                    selected: selected,
+                    onSelected: disabled ? null : (_) => setState(() => _filter = f),
+                    selectedColor: AppColors.primary.withValues(alpha: 0.2),
+                    checkmarkColor: AppColors.primary,
+                    labelStyle: TextStyle(
+                      color: disabled
+                          ? AppColors.textMuted
+                          : selected
+                              ? AppColors.primary
+                              : AppColors.textSecondary,
+                      fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+                      fontSize: 13,
+                    ),
                   ),
-                  onTap: () => _showEditor(context, note),
-                ),
-              );
-            },
-          );
-        },
+                );
+              }).toList(),
+            ),
+          ),
+          const SizedBox(height: 8),
+          // Notes list
+          Expanded(
+            child: notesAsync.when(
+              loading: () =>
+                  const Center(child: CircularProgressIndicator()),
+              error: (e, _) => Center(child: Text('$e')),
+              data: (notes) {
+                if (notes.isEmpty) {
+                  return const _EmptyNotes();
+                }
+                return ListView.builder(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
+                  itemCount: notes.length,
+                  itemBuilder: (context, i) => _NoteCard(
+                    note: notes[i],
+                    onTap: () => _openEditor(context, notes[i]),
+                    onDelete: () =>
+                        ref.read(notesRepositoryProvider).delete(notes[i].id),
+                    onTogglePin: () => ref
+                        .read(notesRepositoryProvider)
+                        .togglePin(notes[i].id, !notes[i].isPinned),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _showEditor(context),
-        icon: const Icon(Icons.edit),
-        label: const Text('New Note'),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _openEditor(context),
+        child: const Icon(Icons.edit_rounded),
       ),
     );
   }
 
-  void _showEditor(BuildContext context, [NotesTableData? note]) {
+  void _openEditor(BuildContext context, [NotesTableData? note]) {
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => _NoteEditorScreen(note: note)),
     );
   }
 }
+
+// ── Note Card ─────────────────────────────────────────────────────────────────
+
+class _NoteCard extends StatelessWidget {
+  final NotesTableData note;
+  final VoidCallback onTap;
+  final VoidCallback onDelete;
+  final VoidCallback onTogglePin;
+
+  const _NoteCard({
+    required this.note,
+    required this.onTap,
+    required this.onDelete,
+    required this.onTogglePin,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Material(
+        color: AppColors.card,
+        borderRadius: BorderRadius.circular(14),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(14),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: AppColors.border, width: 0.5),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        note.title,
+                        style: const TextStyle(
+                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: onTogglePin,
+                      child: Icon(
+                        note.isPinned
+                            ? Icons.push_pin_rounded
+                            : Icons.push_pin_outlined,
+                        size: 18,
+                        color: note.isPinned
+                            ? AppColors.amber
+                            : AppColors.textMuted,
+                      ),
+                    ),
+                  ],
+                ),
+                if (note.content.isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  Text(
+                    note.content,
+                    style: const TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 13,
+                      height: 1.4,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Text(
+                      _formatDate(note.updatedAt),
+                      style: const TextStyle(
+                          color: AppColors.textMuted, fontSize: 11),
+                    ),
+                    const Spacer(),
+                    GestureDetector(
+                      onTap: onDelete,
+                      child: const Icon(Icons.delete_outline,
+                          size: 16, color: AppColors.textMuted),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _formatDate(DateTime date) {
+    final now = DateTime.now();
+    final diff = now.difference(date);
+    if (diff.inMinutes < 60) return 'Just now';
+    if (diff.inHours < 24) return '${diff.inHours}h ago';
+    if (diff.inDays == 1) return 'Yesterday';
+    return DateFormat('MMM d').format(date);
+  }
+}
+
+class _EmptyNotes extends StatelessWidget {
+  const _EmptyNotes();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.description_outlined, size: 72, color: AppColors.textMuted),
+          SizedBox(height: 16),
+          Text('No notes yet',
+              style: TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600)),
+          SizedBox(height: 6),
+          Text('Tap the edit button to create your first note',
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Note Editor ───────────────────────────────────────────────────────────────
 
 class _NoteEditorScreen extends ConsumerStatefulWidget {
   final NotesTableData? note;
@@ -84,14 +254,15 @@ class _NoteEditorScreen extends ConsumerStatefulWidget {
 }
 
 class _NoteEditorScreenState extends ConsumerState<_NoteEditorScreen> {
-  late TextEditingController _titleController;
-  late TextEditingController _contentController;
+  late final TextEditingController _titleController;
+  late final TextEditingController _contentController;
 
   @override
   void initState() {
     super.initState();
     _titleController = TextEditingController(text: widget.note?.title ?? '');
-    _contentController = TextEditingController(text: widget.note?.content ?? '');
+    _contentController =
+        TextEditingController(text: widget.note?.content ?? '');
   }
 
   @override
@@ -104,12 +275,16 @@ class _NoteEditorScreenState extends ConsumerState<_NoteEditorScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.bg,
       appBar: AppBar(
-        title: const Text('New Note'),
+        title: Text(widget.note == null ? 'New Note' : 'Edit Note'),
         actions: [
-          IconButton(icon: const Icon(Icons.tag), onPressed: () {}),
-          IconButton(icon: const Icon(Icons.pin_outlined), onPressed: () {}),
-          FilledButton(onPressed: _save, child: const Text('Save')),
+          IconButton(icon: const Icon(Icons.push_pin_outlined), onPressed: () {}),
+          TextButton(
+            onPressed: _save,
+            child: const Text('Save',
+                style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600)),
+          ),
           const SizedBox(width: 8),
         ],
       ),
@@ -119,23 +294,34 @@ class _NoteEditorScreenState extends ConsumerState<_NoteEditorScreen> {
           children: [
             TextField(
               controller: _titleController,
-              style: Theme.of(context).textTheme.titleLarge,
+              style: const TextStyle(
+                color: AppColors.textPrimary,
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+              ),
               decoration: const InputDecoration(
                 hintText: 'Title',
                 border: InputBorder.none,
+                fillColor: Colors.transparent,
+                hintStyle: TextStyle(color: AppColors.textMuted, fontSize: 20),
               ),
             ),
-            const Divider(),
+            const Divider(color: AppColors.divider),
             Expanded(
               child: TextField(
                 controller: _contentController,
                 maxLines: null,
                 expands: true,
+                textAlignVertical: TextAlignVertical.top,
+                style: const TextStyle(
+                    color: AppColors.textSecondary, fontSize: 15, height: 1.6),
                 decoration: const InputDecoration(
                   hintText: 'Start writing...',
                   border: InputBorder.none,
+                  fillColor: Colors.transparent,
+                  hintStyle:
+                      TextStyle(color: AppColors.textMuted, fontSize: 15),
                 ),
-                textAlignVertical: TextAlignVertical.top,
               ),
             ),
           ],
@@ -144,34 +330,26 @@ class _NoteEditorScreenState extends ConsumerState<_NoteEditorScreen> {
     );
   }
 
-  void _save() async {
+  Future<void> _save() async {
     if (_titleController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Title is required')),
       );
       return;
     }
-    try {
-      final repo = ref.read(notesRepositoryProvider);
-      if (widget.note == null) {
-        await repo.add(
-          title: _titleController.text.trim(),
-          content: _contentController.text.trim(),
-        );
-      } else {
-        await repo.update(
-          widget.note!.id,
-          title: _titleController.text.trim(),
-          content: _contentController.text.trim(),
-        );
-      }
-      if (mounted) Navigator.of(context).pop();
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save note: $e')),
-        );
-      }
+    final repo = ref.read(notesRepositoryProvider);
+    if (widget.note == null) {
+      await repo.add(
+        title: _titleController.text.trim(),
+        content: _contentController.text.trim(),
+      );
+    } else {
+      await repo.update(
+        widget.note!.id,
+        title: _titleController.text.trim(),
+        content: _contentController.text.trim(),
+      );
     }
+    if (mounted) Navigator.of(context).pop();
   }
 }

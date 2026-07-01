@@ -18,6 +18,29 @@ class TasksRepository {
         .watch();
   }
 
+  Stream<List<TasksTableData>> watchToday() {
+    final now = DateTime.now();
+    final start = DateTime(now.year, now.month, now.day);
+    final end = start.add(const Duration(days: 1));
+    return (_db.select(_db.tasksTable)
+          ..where((t) =>
+              t.isCompleted.equals(false) &
+              t.dueDate.isBetweenValues(start, end))
+          ..orderBy([(t) => OrderingTerm.asc(t.dueDate)]))
+        .watch();
+  }
+
+  Stream<List<TasksTableData>> watchUpcoming() {
+    final now = DateTime.now();
+    final tomorrow = DateTime(now.year, now.month, now.day + 1);
+    return (_db.select(_db.tasksTable)
+          ..where((t) =>
+              t.isCompleted.equals(false) &
+              t.dueDate.isBiggerThanValue(tomorrow))
+          ..orderBy([(t) => OrderingTerm.asc(t.dueDate)]))
+        .watch();
+  }
+
   Future<void> add({
     required String title,
     String? description,
@@ -25,6 +48,7 @@ class TasksRepository {
     DateTime? dueDate,
     bool isRecurring = false,
     String? recurringPattern,
+    List<String>? tags,
   }) {
     return _db.into(_db.tasksTable).insert(
           TasksTableCompanion.insert(
@@ -34,6 +58,7 @@ class TasksRepository {
             dueDate: Value(dueDate),
             isRecurring: Value(isRecurring),
             recurringPattern: Value(recurringPattern),
+            tags: Value(tags != null && tags.isNotEmpty ? tags.join(',') : null),
           ),
         );
   }
