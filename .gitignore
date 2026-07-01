@@ -9,6 +9,7 @@ build/
 *.iml
 
 # Android
+android/
 android/.gradle/
 android/local.properties
 android/captures/
@@ -53,3 +54,8 @@ __pycache__/
 
 # Misc
 *.log
+
+#additional
+.claude/
+.dart_tool
+build
