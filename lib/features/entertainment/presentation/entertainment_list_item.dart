@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../data/database/tables/entertainment_table.dart';
+import '../../../data/database/app_database.dart';
 
 class EntertainmentListItem extends StatelessWidget {
   final EntertainmentItem item;
@@ -33,7 +33,7 @@ class EntertainmentListItem extends StatelessWidget {
       onDismissed: (_) => onDelete?.call(),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: color.withOpacity(0.15),
+          backgroundColor: color.withValues(alpha: 0.15),
           child: Text(
             item.title.isNotEmpty ? item.title[0].toUpperCase() : '?',
             style: TextStyle(color: color, fontWeight: FontWeight.bold),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../data/database/tables/entertainment_table.dart';
+import '../../../data/database/app_database.dart';
 import '../providers/entertainment_providers.dart';
 import 'add_entertainment_sheet.dart';
 import 'entertainment_list_item.dart';

@@ -12,7 +12,7 @@ class AppTheme {
           brightness: Brightness.light,
         ),
         textTheme: GoogleFonts.interTextTheme(),
-        cardTheme: const CardTheme(
+        cardTheme: const CardThemeData(
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(16)),
@@ -34,7 +34,7 @@ class AppTheme {
           brightness: Brightness.dark,
         ),
         textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme),
-        cardTheme: const CardTheme(
+        cardTheme: const CardThemeData(
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(16)),

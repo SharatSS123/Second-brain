@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import '../../../data/database/app_database.dart';
+import '../../tasks/providers/tasks_providers.dart';
+import '../../notes/providers/notes_providers.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -10,6 +13,19 @@ class DashboardScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final now = DateTime.now();
     final greeting = _greeting(now.hour);
+
+    final tasksAsync = ref.watch(allTasksProvider);
+    final notesAsync = ref.watch(allNotesProvider);
+    final allTasks = (tasksAsync.value ?? []).cast<TasksTableData>();
+    final allNotes = (notesAsync.value ?? []).cast<NotesTableData>();
+    final today = DateTime(now.year, now.month, now.day);
+    final todayTasks = allTasks.where((task) {
+      final due = task.dueDate;
+      if (due == null) return false;
+      final dueDate = DateTime(due.year, due.month, due.day);
+      return dueDate == today && !task.isCompleted;
+    }).toList();
+    final recentNotes = allNotes.take(3).toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -28,13 +44,17 @@ class DashboardScreen extends ConsumerWidget {
           const SizedBox(height: 24),
 
           // Quick stats row
-          _StatsRow(),
+          _StatsRow(
+            tasksDue: allTasks.where((task) => !task.isCompleted).length,
+            notes: allNotes.length,
+            saved: allTasks.length + allNotes.length,
+          ),
           const SizedBox(height: 24),
 
           // Today's tasks
           _SectionHeader(title: "Today's Tasks", onSeeAll: () {}),
           const SizedBox(height: 8),
-          _TodayTasksCard(),
+          _TodayTasksCard(tasks: todayTasks),
           const SizedBox(height: 24),
 
           // Continue learning
@@ -46,7 +66,7 @@ class DashboardScreen extends ConsumerWidget {
           // Recent notes
           _SectionHeader(title: 'Recent Notes', onSeeAll: () {}),
           const SizedBox(height: 8),
-          _RecentNotesCard(),
+          _RecentNotesCard(notes: recentNotes),
           const SizedBox(height: 24),
 
           // Watchlist
@@ -84,15 +104,21 @@ class _SectionHeader extends StatelessWidget {
 }
 
 class _StatsRow extends StatelessWidget {
+  final int tasksDue;
+  final int notes;
+  final int saved;
+
+  const _StatsRow({required this.tasksDue, required this.notes, required this.saved});
+
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Expanded(child: _StatCard(label: 'Tasks due', value: '0', icon: Icons.check_circle_outline, color: Colors.blue)),
+        Expanded(child: _StatCard(label: 'Tasks due', value: tasksDue.toString(), icon: Icons.check_circle_outline, color: Colors.blue)),
         const SizedBox(width: 12),
-        Expanded(child: _StatCard(label: 'Notes', value: '0', icon: Icons.note_alt_outlined, color: Colors.amber)),
+        Expanded(child: _StatCard(label: 'Notes', value: notes.toString(), icon: Icons.note_alt_outlined, color: Colors.amber)),
         const SizedBox(width: 12),
-        Expanded(child: _StatCard(label: 'Saved', value: '0', icon: Icons.folder_outlined, color: Colors.green)),
+        Expanded(child: _StatCard(label: 'Saved', value: saved.toString(), icon: Icons.folder_outlined, color: Colors.green)),
       ],
     );
   }
@@ -109,7 +135,7 @@ class _StatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Card(
-      color: color.withOpacity(0.1),
+      color: color.withValues(alpha: 0.1),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
@@ -127,15 +153,39 @@ class _StatCard extends StatelessWidget {
 }
 
 class _TodayTasksCard extends StatelessWidget {
+  final List<TasksTableData> tasks;
+  const _TodayTasksCard({required this.tasks});
+
   @override
   Widget build(BuildContext context) {
+    if (tasks.isEmpty) {
+      return const Card(
+        child: Padding(
+          padding: EdgeInsets.all(16),
+          child: Column(
+            children: [
+              _EmptyState(icon: Icons.check_circle_outline, message: 'No tasks for today'),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
-          children: [
-            _EmptyState(icon: Icons.check_circle_outline, message: 'No tasks for today'),
-          ],
+          children: tasks
+              .take(3)
+              .map(
+                (task) => ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(task.title),
+                  subtitle: task.dueDate != null ? Text('Due ${DateFormat.yMMMd().format(task.dueDate!)}') : null,
+                  trailing: Icon(task.isCompleted ? Icons.check_circle : Icons.radio_button_unchecked),
+                ),
+              )
+              .toList(),
         ),
       ),
     );
@@ -145,9 +195,9 @@ class _TodayTasksCard extends StatelessWidget {
 class _LearningCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return const Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         child: _EmptyState(icon: Icons.school_outlined, message: 'No active learning topics'),
       ),
     );
@@ -155,12 +205,38 @@ class _LearningCard extends StatelessWidget {
 }
 
 class _RecentNotesCard extends StatelessWidget {
+  final List<NotesTableData> notes;
+  const _RecentNotesCard({required this.notes});
+
   @override
   Widget build(BuildContext context) {
+    if (notes.isEmpty) {
+      return const Card(
+        child: Padding(
+          padding: EdgeInsets.all(16),
+          child: _EmptyState(icon: Icons.note_alt_outlined, message: 'No notes yet'),
+        ),
+      );
+    }
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: _EmptyState(icon: Icons.note_alt_outlined, message: 'No notes yet'),
+        child: Column(
+          children: notes
+              .map(
+                (note) => ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(note.title.isEmpty ? 'Untitled note' : note.title),
+                  subtitle: Text(
+                    note.content.isEmpty ? 'No content yet' : note.content,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              )
+              .toList(),
+        ),
       ),
     );
   }
@@ -169,9 +245,9 @@ class _RecentNotesCard extends StatelessWidget {
 class _WatchlistCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return const Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         child: _EmptyState(icon: Icons.movie_outlined, message: 'Your watchlist is empty'),
       ),
     );
