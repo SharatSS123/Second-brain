@@ -8,17 +8,23 @@ class MainScaffold extends StatelessWidget {
 
   static const _tabs = [
     _NavTab(icon: Icons.home_outlined, activeIcon: Icons.home_rounded, label: 'Home', path: '/dashboard'),
-    _NavTab(icon: Icons.check_circle_outline, activeIcon: Icons.check_circle_rounded, label: 'Tasks', path: '/tasks'),
+    _NavTab(icon: Icons.calendar_month_outlined, activeIcon: Icons.calendar_month_rounded, label: 'Planner', path: '/planner'),
     _NavTab(icon: Icons.description_outlined, activeIcon: Icons.description_rounded, label: 'Notes', path: '/notes'),
     _NavTab(icon: Icons.school_outlined, activeIcon: Icons.school_rounded, label: 'Learn', path: '/learning'),
-    _NavTab(icon: Icons.movie_outlined, activeIcon: Icons.movie_rounded, label: 'Watch', path: '/entertainment'),
-    _NavTab(icon: Icons.folder_outlined, activeIcon: Icons.folder_rounded, label: 'Vault', path: '/knowledge'),
+    _NavTab(icon: Icons.grid_view_outlined, activeIcon: Icons.grid_view_rounded, label: 'More', path: '/more'),
   ];
 
   int _currentIndex(BuildContext context) {
     final location = GoRouterState.of(context).uri.path;
     final idx = _tabs.indexWhere((t) => location.startsWith(t.path));
-    return idx < 0 ? 0 : idx;
+    if (idx >= 0) return idx;
+    // Tasks, entertainment, knowledge are sub-screens accessed via More
+    if (location.startsWith('/tasks') ||
+        location.startsWith('/entertainment') ||
+        location.startsWith('/knowledge')) {
+      return _tabs.indexWhere((t) => t.path == '/more');
+    }
+    return 0;
   }
 
   @override

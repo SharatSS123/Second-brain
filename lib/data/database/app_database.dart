@@ -6,6 +6,7 @@ import 'tables/notes_table.dart';
 import 'tables/learning_table.dart';
 import 'tables/entertainment_table.dart';
 import 'tables/knowledge_table.dart';
+import 'tables/planner_table.dart';
 
 part 'app_database.g.dart';
 
@@ -16,12 +17,29 @@ part 'app_database.g.dart';
   LearningResourcesTable,
   EntertainmentTable,
   KnowledgeTable,
+  PlannerActivitiesTable,
+  TimeBlocksTable,
+  RoutinesTable,
+  RoutineBlocksTable,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+        onCreate: (m) async => m.createAll(),
+        onUpgrade: (m, from, to) async {
+          if (from < 2) {
+            await m.createTable(plannerActivitiesTable);
+            await m.createTable(timeBlocksTable);
+            await m.createTable(routinesTable);
+            await m.createTable(routineBlocksTable);
+          }
+        },
+      );
 
   static QueryExecutor _openConnection() {
     return driftDatabase(name: 'cortex');
