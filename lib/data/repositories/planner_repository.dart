@@ -150,6 +150,7 @@ class PlannerRepository {
     required String name,
     required String schedule,
     required String category,
+    String? description,
   }) async {
     final id = _uuid.v4();
     await _db.into(_db.routinesTable).insert(
@@ -158,9 +159,39 @@ class PlannerRepository {
             name: name,
             schedule: Value(schedule),
             category: Value(category),
+            description: Value(description),
           ),
         );
     return id;
+  }
+
+  Future<void> updateRoutine(
+    String id, {
+    String? name,
+    String? schedule,
+    String? category,
+    String? description,
+  }) {
+    return (_db.update(_db.routinesTable)..where((t) => t.id.equals(id)))
+        .write(RoutinesTableCompanion(
+      name: name != null ? Value(name) : const Value.absent(),
+      schedule: schedule != null ? Value(schedule) : const Value.absent(),
+      category: category != null ? Value(category) : const Value.absent(),
+      description:
+          description != null ? Value(description) : const Value.absent(),
+    ));
+  }
+
+  Future<void> deleteRoutineBlock(String id) {
+    return (_db.delete(_db.routineBlocksTable)
+          ..where((t) => t.id.equals(id)))
+        .go();
+  }
+
+  Future<void> updateRoutineBlockOrder(String id, int sortOrder) {
+    return (_db.update(_db.routineBlocksTable)
+          ..where((t) => t.id.equals(id)))
+        .write(RoutineBlocksTableCompanion(sortOrder: Value(sortOrder)));
   }
 
   Future<void> addRoutineBlock({

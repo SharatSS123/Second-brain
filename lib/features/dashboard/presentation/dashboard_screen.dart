@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../data/database/app_database.dart';
+import '../../../shared/widgets/main_scaffold.dart';
 import '../../tasks/providers/tasks_providers.dart';
 import '../../notes/providers/notes_providers.dart';
 import '../../learning/providers/learning_providers.dart';
@@ -35,7 +36,7 @@ class DashboardScreen extends ConsumerWidget {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.menu_rounded),
-          onPressed: () {},
+          onPressed: () => mainScaffoldKey.currentState?.openDrawer(),
         ),
         title: const Text('CORTEX'),
         actions: [

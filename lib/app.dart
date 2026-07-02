@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/auth/auth_provider.dart';
 import 'core/theme/app_theme.dart';
 import 'core/router/app_router.dart';
+import 'features/auth/presentation/biometric_setup_screen.dart';
 import 'features/auth/presentation/lock_screen.dart';
 import 'features/auth/presentation/pin_setup_screen.dart';
+import 'features/auth/presentation/profile_setup_screen.dart';
 
 class CortexApp extends ConsumerWidget {
   const CortexApp({super.key});
@@ -23,10 +25,12 @@ class CortexApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       builder: (context, child) {
         return switch (authStatus) {
-          AuthStatus.unknown   => const _SplashView(),
-          AuthStatus.pinNotSet => const PinSetupScreen(),
-          AuthStatus.locked    => const LockScreen(),
-          AuthStatus.unlocked  => child ?? const SizedBox.shrink(),
+          AuthStatus.unknown        => const _SplashView(),
+          AuthStatus.profileNotSet  => const ProfileSetupScreen(),
+          AuthStatus.pinNotSet      => const PinSetupScreen(),
+          AuthStatus.biometricSetup => const BiometricSetupScreen(),
+          AuthStatus.locked         => const LockScreen(),
+          AuthStatus.unlocked       => child ?? const SizedBox.shrink(),
         };
       },
     );

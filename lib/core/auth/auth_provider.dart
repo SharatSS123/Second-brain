@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'auth_service.dart';
 
-enum AuthStatus { unknown, pinNotSet, locked, unlocked }
+enum AuthStatus { unknown, profileNotSet, pinNotSet, biometricSetup, locked, unlocked }
 
 final authServiceProvider = Provider<AuthService>((ref) => AuthService());
 
@@ -13,8 +13,33 @@ class AuthNotifier extends Notifier<AuthStatus> {
   }
 
   Future<void> _checkInitial() async {
-    final isPinSet = await ref.read(authServiceProvider).isPinSet();
+    final service = ref.read(authServiceProvider);
+    final isProfileSet = await service.isProfileSet();
+    if (!isProfileSet) {
+      state = AuthStatus.profileNotSet;
+      return;
+    }
+    final isPinSet = await service.isPinSet();
     state = isPinSet ? AuthStatus.locked : AuthStatus.pinNotSet;
+  }
+
+  Future<void> setupProfile(String name, String? email, String? dob) async {
+    await ref.read(authServiceProvider).saveProfile(
+          name: name,
+          email: email,
+          dob: dob,
+        );
+    state = AuthStatus.pinNotSet;
+  }
+
+  Future<void> setupPin(String pin) async {
+    await ref.read(authServiceProvider).savePin(pin);
+    state = AuthStatus.biometricSetup;
+  }
+
+  Future<void> finishBiometricSetup(bool enabled) async {
+    await ref.read(authServiceProvider).setBiometricEnabled(enabled);
+    state = AuthStatus.unlocked;
   }
 
   Future<bool> biometricAuth() async {
@@ -28,11 +53,6 @@ class AuthNotifier extends Notifier<AuthStatus> {
     final success = await ref.read(authServiceProvider).verifyPin(pin);
     if (success) state = AuthStatus.unlocked;
     return success;
-  }
-
-  Future<void> setupPin(String pin) async {
-    await ref.read(authServiceProvider).savePin(pin);
-    state = AuthStatus.unlocked;
   }
 
   void lock() => state = AuthStatus.locked;

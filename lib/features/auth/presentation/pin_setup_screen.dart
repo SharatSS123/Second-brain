@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app.dart';
 import '../../../core/auth/auth_provider.dart';
 import '../../../core/theme/app_theme.dart';
+import 'profile_setup_screen.dart';
 import 'widgets/pin_pad.dart';
 
 class PinSetupScreen extends ConsumerStatefulWidget {
@@ -233,15 +234,8 @@ class _PinSetupScreenState extends ConsumerState<PinSetupScreen>
 
                   const Spacer(flex: 3),
 
-                  // Step dots
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _StepDot(active: !_isConfirmStep, done: _isConfirmStep),
-                      const SizedBox(width: 8),
-                      _StepDot(active: _isConfirmStep, done: false),
-                    ],
-                  ),
+                  // Overall onboarding step indicator (profile ✓ | pin active | biometric)
+                  const OnboardingSteps(current: 1),
                   const SizedBox(height: 24),
 
                   // Number pad
@@ -262,21 +256,3 @@ class _PinSetupScreenState extends ConsumerState<PinSetupScreen>
   }
 }
 
-class _StepDot extends StatelessWidget {
-  final bool active;
-  final bool done;
-  const _StepDot({required this.active, required this.done});
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      width: active ? 28 : 8,
-      height: 8,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(4),
-        color: done || active ? AppColors.primary : AppColors.border,
-      ),
-    );
-  }
-}

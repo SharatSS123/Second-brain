@@ -39,6 +39,7 @@ class RoutinesTable extends Table {
   TextColumn get name => text()();
   TextColumn get schedule => text().withDefault(const Constant('any'))();
   TextColumn get category => text().withDefault(const Constant('Personal'))();
+  TextColumn get description => text().nullable()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 
   @override

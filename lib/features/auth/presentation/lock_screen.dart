@@ -47,6 +47,8 @@ class _LockScreenState extends ConsumerState<LockScreen>
 
   Future<void> _checkBiometric() async {
     final service = ref.read(authServiceProvider);
+    final enabled = await service.isBiometricEnabled();
+    if (!enabled || !mounted) return;
     final available = await service.isBiometricAvailable();
     if (!available || !mounted) return;
     final types = await service.availableBiometrics();
