@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/theme/app_theme.dart';
 
 class EntertainmentScreen extends StatelessWidget {
   const EntertainmentScreen({super.key});
@@ -7,18 +8,22 @@ class EntertainmentScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Entertainment')),
+      backgroundColor: AppColors.bg,
+      appBar: AppBar(
+        backgroundColor: AppColors.bg,
+        title: const Text(
+          'Watch',
+          style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w700),
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'What are you into?',
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
             ),
             const SizedBox(height: 16),
             Expanded(
@@ -32,39 +37,29 @@ class EntertainmentScreen extends StatelessWidget {
                     title: 'Movies',
                     subtitle: 'Track your watchlist',
                     icon: Icons.movie_rounded,
-                    color: Colors.blue,
+                    color: AppColors.blue,
                     onTap: () => context.push('/entertainment/movies'),
                   ),
                   _CategoryCard(
                     title: 'TV Series',
                     subtitle: 'Episodes & seasons',
                     icon: Icons.tv_rounded,
-                    color: Colors.purple,
+                    color: AppColors.primary,
                     onTap: () => context.push('/entertainment/series'),
                   ),
                   _CategoryCard(
                     title: 'Anime',
-                    subtitle: 'Coming soon',
+                    subtitle: 'Watchlist & watched',
                     icon: Icons.animation_rounded,
-                    color: Colors.orange,
-                    onTap: null,
-                    comingSoon: true,
-                  ),
-                  _CategoryCard(
-                    title: 'Books',
-                    subtitle: 'Coming soon',
-                    icon: Icons.menu_book_rounded,
-                    color: Colors.green,
-                    onTap: null,
-                    comingSoon: true,
+                    color: AppColors.orange,
+                    onTap: () => context.push('/entertainment/anime'),
                   ),
                   _CategoryCard(
                     title: 'Games',
-                    subtitle: 'Coming soon',
+                    subtitle: 'Backlog & played',
                     icon: Icons.sports_esports_rounded,
-                    color: Colors.red,
-                    onTap: null,
-                    comingSoon: true,
+                    color: AppColors.red,
+                    onTap: () => context.push('/entertainment/games'),
                   ),
                 ],
               ),
@@ -95,13 +90,18 @@ class _CategoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Card(
-      clipBehavior: Clip.antiAlias,
+    return Material(
+      color: AppColors.card,
+      borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: onTap,
-        child: Padding(
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
           padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.border, width: 0.5),
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -110,7 +110,7 @@ class _CategoryCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: color.withOpacity(0.15),
+                      color: color.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(icon, color: color, size: 22),
@@ -120,13 +120,16 @@ class _CategoryCard extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: theme.colorScheme.surfaceVariant,
+                        color: AppColors.border,
                         borderRadius: BorderRadius.circular(4),
                       ),
-                      child: Text(
+                      child: const Text(
                         'Soon',
-                        style: theme.textTheme.labelSmall
-                            ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                        style: TextStyle(
+                          color: AppColors.textMuted,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
                   ],
@@ -135,13 +138,16 @@ class _CategoryCard extends StatelessWidget {
               const Spacer(),
               Text(
                 title,
-                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  color: onTap != null ? AppColors.textPrimary : AppColors.textSecondary,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
               ),
               const SizedBox(height: 2),
               Text(
                 subtitle,
-                style: theme.textTheme.bodySmall
-                    ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
               ),
             ],
           ),

@@ -240,13 +240,10 @@ class _PinSetupScreenState extends ConsumerState<PinSetupScreen>
 
                   // Number pad
                   Center(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 360),
-                      child: NumberPad(
-                        onDigit: _onDigit,
-                        onDelete: _onDelete,
-                        showBiometric: false,
-                      ),
+                    child: NumberPad(
+                      onDigit: _onDigit,
+                      onDelete: _onDelete,
+                      showBiometric: false,
                     ),
                   ),
 

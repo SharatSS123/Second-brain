@@ -40,11 +40,20 @@ class DashboardScreen extends ConsumerWidget {
         ),
         title: const Text('CORTEX'),
         actions: [
-          IconButton(icon: const Icon(Icons.search_rounded), onPressed: () {}),
+          IconButton(
+            icon: const Icon(Icons.search_rounded),
+            onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Search coming soon'), behavior: SnackBarBehavior.floating),
+            ),
+          ),
           Stack(
             children: [
               IconButton(
-                  icon: const Icon(Icons.notifications_outlined), onPressed: () {}),
+                icon: const Icon(Icons.notifications_outlined),
+                onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Notifications coming soon'), behavior: SnackBarBehavior.floating),
+                ),
+              ),
               if (todayTasks.isNotEmpty)
                 Positioned(
                   right: 10,

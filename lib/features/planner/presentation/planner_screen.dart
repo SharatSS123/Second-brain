@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../core/theme/app_theme.dart';
 import '../providers/planner_providers.dart';
+import '../../../shared/widgets/main_scaffold.dart';
 import 'tabs/today_tab.dart';
 import 'tabs/calendar_tab.dart';
 import 'tabs/upcoming_tab.dart';
@@ -48,8 +49,8 @@ class _PlannerScreenState extends ConsumerState<PlannerScreen>
         backgroundColor: AppColors.bg,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.menu_rounded),
-          onPressed: () {},
+          icon: const Icon(Icons.menu_rounded, color: AppColors.textSecondary),
+          onPressed: () => mainScaffoldKey.currentState?.openDrawer(),
         ),
         title: Text(
           _titles[_idx],

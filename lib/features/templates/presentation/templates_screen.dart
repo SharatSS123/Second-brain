@@ -145,23 +145,171 @@ class _MyTemplates extends ConsumerWidget {
   }
 }
 
-class _RecommendedTemplates extends StatelessWidget {
+// ── Recommended template data ──────────────────────────────────────────────
+
+class _BlockDef {
+  final String title;
+  final String startTime;
+  final int durationMinutes;
+  final String category;
+  const _BlockDef(this.title, this.startTime, this.durationMinutes, this.category);
+}
+
+class _RecommendedTemplate {
+  final String name;
+  final String category;
+  final String schedule;
+  final String description;
+  final List<_BlockDef> blocks;
+  const _RecommendedTemplate({
+    required this.name,
+    required this.category,
+    required this.schedule,
+    required this.description,
+    required this.blocks,
+  });
+}
+
+const _recommended = [
+  _RecommendedTemplate(
+    name: 'Productive Day',
+    category: 'Work',
+    schedule: 'weekdays',
+    description: 'A structured Mon–Fri template balancing deep work and essential breaks.',
+    blocks: [
+      _BlockDef('Morning Routine',      '06:30', 30,  'Personal'),
+      _BlockDef('Exercise',             '07:00', 30,  'Exercise'),
+      _BlockDef('Breakfast',            '07:30', 30,  'Meals'),
+      _BlockDef('Deep Focus Block 1',   '08:00', 90,  'Work'),
+      _BlockDef('Email & Messages',     '09:30', 30,  'Work'),
+      _BlockDef('Team Standup',         '10:00', 30,  'Meeting'),
+      _BlockDef('Project Work',         '10:30', 90,  'Work'),
+      _BlockDef('Lunch Break',          '12:00', 60,  'Meals'),
+      _BlockDef('Deep Focus Block 2',   '13:00', 90,  'Work'),
+      _BlockDef('Review & Follow-ups',  '14:30', 30,  'Work'),
+      _BlockDef('Wind Down',            '17:00', 30,  'Personal'),
+    ],
+  ),
+  _RecommendedTemplate(
+    name: 'Weekend Relax',
+    category: 'Leisure',
+    schedule: 'weekends',
+    description: 'A slow, restorative weekend — no rushing, just recharging.',
+    blocks: [
+      _BlockDef('Slow Morning',         '08:30', 60,  'Personal'),
+      _BlockDef('Breakfast & Coffee',   '09:30', 45,  'Meals'),
+      _BlockDef('Walk / Light Exercise','10:30', 45,  'Exercise'),
+      _BlockDef('Lunch',                '12:30', 60,  'Meals'),
+      _BlockDef('Rest & Recharge',      '14:00', 90,  'Personal'),
+      _BlockDef('Hobbies & Leisure',    '16:00', 90,  'Leisure'),
+      _BlockDef('Dinner',               '19:00', 60,  'Meals'),
+      _BlockDef('Evening Wind Down',    '20:30', 45,  'Leisure'),
+    ],
+  ),
+  _RecommendedTemplate(
+    name: 'Deep Work',
+    category: 'Work',
+    schedule: 'any',
+    description: 'Three uninterrupted 90-min focus blocks. No meetings, no distractions.',
+    blocks: [
+      _BlockDef('Morning Prep',         '07:00', 30,  'Personal'),
+      _BlockDef('Deep Work Session 1',  '07:30', 90,  'Work'),
+      _BlockDef('Short Break',          '09:00', 15,  'Personal'),
+      _BlockDef('Deep Work Session 2',  '09:15', 90,  'Work'),
+      _BlockDef('Lunch',                '10:45', 60,  'Meals'),
+      _BlockDef('Deep Work Session 3',  '11:45', 90,  'Work'),
+      _BlockDef('Review & Notes',       '13:15', 30,  'Work'),
+    ],
+  ),
+  _RecommendedTemplate(
+    name: 'Study Session',
+    category: 'Learning',
+    schedule: 'any',
+    description: 'Pomodoro-style study blocks with deliberate breaks for retention.',
+    blocks: [
+      _BlockDef('Set Goals & Plan',     '08:00', 20,  'Learning'),
+      _BlockDef('Study Block 1',        '08:20', 50,  'Learning'),
+      _BlockDef('Short Break',          '09:10', 10,  'Personal'),
+      _BlockDef('Study Block 2',        '09:20', 50,  'Learning'),
+      _BlockDef('Short Break',          '10:10', 10,  'Personal'),
+      _BlockDef('Study Block 3',        '10:20', 50,  'Learning'),
+      _BlockDef('Lunch Break',          '11:10', 60,  'Meals'),
+      _BlockDef('Review & Make Notes',  '12:10', 50,  'Learning'),
+    ],
+  ),
+  _RecommendedTemplate(
+    name: 'Minimal Day',
+    category: 'Personal',
+    schedule: 'any',
+    description: 'Essentials only — one key task, rest, and recovery.',
+    blocks: [
+      _BlockDef('Morning Routine',      '08:00', 30,  'Personal'),
+      _BlockDef('One Key Task',         '09:00', 120, 'Work'),
+      _BlockDef('Lunch',                '11:00', 60,  'Meals'),
+      _BlockDef('Evening Walk',         '16:00', 45,  'Exercise'),
+    ],
+  ),
+];
+
+// ── Recommended Templates Tab ──────────────────────────────────────────────
+
+class _RecommendedTemplates extends ConsumerStatefulWidget {
+  @override
+  ConsumerState<_RecommendedTemplates> createState() => _RecommendedTemplatesState();
+}
+
+class _RecommendedTemplatesState extends ConsumerState<_RecommendedTemplates> {
+  final Set<int> _loading = {};
+
+  Future<void> _useTemplate(BuildContext context, int index) async {
+    setState(() => _loading.add(index));
+    try {
+      final t = _recommended[index];
+      final repo = ref.read(plannerRepositoryProvider);
+      final id = await repo.addRoutine(
+        name: t.name,
+        schedule: t.schedule,
+        category: t.category,
+        description: t.description,
+      );
+      for (int i = 0; i < t.blocks.length; i++) {
+        final b = t.blocks[i];
+        await repo.addRoutineBlock(
+          routineId: id,
+          title: b.title,
+          startTime: b.startTime,
+          durationMinutes: b.durationMinutes,
+          category: b.category,
+          sortOrder: i,
+        );
+      }
+      if (!context.mounted) return;
+      final routine = Routine(
+        id: id,
+        name: t.name,
+        schedule: t.schedule,
+        category: t.category,
+        description: t.description,
+        createdAt: DateTime.now(),
+      );
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => TemplateDetailScreen(routine: routine)),
+      );
+    } finally {
+      if (mounted) setState(() => _loading.remove(index));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final recommended = [
-      ('Productive Day', 'Work', 'Mon–Fri', 8),
-      ('Weekend Relax', 'Leisure', 'Sat–Sun', 5),
-      ('Deep Work', 'Work', 'Any day', 4),
-      ('Study Session', 'Learning', 'Any day', 6),
-      ('Minimal Day', 'Personal', 'Any day', 3),
-    ];
-
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-      itemCount: recommended.length,
+      itemCount: _recommended.length,
       itemBuilder: (_, i) {
-        final (name, cat, sched, count) = recommended[i];
-        final (color, icon) = categoryStyle(cat);
+        final t = _recommended[i];
+        final (color, icon) = categoryStyle(t.category);
+        final isLoading = _loading.contains(i);
         return Container(
           margin: const EdgeInsets.only(bottom: 10),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -189,30 +337,52 @@ class _RecommendedTemplates extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(name,
+                    Text(t.name,
                         style: const TextStyle(
                           color: AppColors.textPrimary,
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
                         )),
-                    Text('$sched  •  $count activities',
-                        style: const TextStyle(
-                            color: AppColors.textMuted, fontSize: 12)),
+                    Text(
+                      '${_schedLabel(t.schedule)}  •  ${t.blocks.length} activities',
+                      style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+                    ),
+                    if (t.description.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        t.description,
+                        style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ],
                 ),
               ),
-              OutlinedButton(
-                onPressed: () {},
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.primary,
-                  side: const BorderSide(color: AppColors.primary),
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 6),
-                  minimumSize: Size.zero,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)),
+              const SizedBox(width: 10),
+              SizedBox(
+                width: 56,
+                height: 32,
+                child: OutlinedButton(
+                  onPressed: isLoading ? null : () => _useTemplate(context, i),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.primary,
+                    side: const BorderSide(color: AppColors.primary),
+                    padding: EdgeInsets.zero,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                  ),
+                  child: isLoading
+                      ? const SizedBox(
+                          width: 14,
+                          height: 14,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 1.8,
+                            color: AppColors.primary,
+                          ),
+                        )
+                      : const Text('Use', style: TextStyle(fontSize: 12)),
                 ),
-                child: const Text('Use', style: TextStyle(fontSize: 12)),
               ),
             ],
           ),
@@ -220,6 +390,12 @@ class _RecommendedTemplates extends StatelessWidget {
       },
     );
   }
+
+  String _schedLabel(String s) => switch (s) {
+        'weekdays' => 'Mon – Fri',
+        'weekends' => 'Sat – Sun',
+        _ => 'Any day',
+      };
 }
 
 class _TemplateCard extends ConsumerWidget {

@@ -26,3 +26,19 @@ final watchedSeriesProvider = StreamProvider.autoDispose<List<EntertainmentItem>
       .watch(entertainmentRepositoryProvider)
       .watchByTypeAndStatus('TV Series', 'Completed');
 });
+
+final animeWatchlistProvider = StreamProvider.autoDispose<List<EntertainmentItem>>((ref) {
+  return ref.watch(entertainmentRepositoryProvider).watchByTypeAndStatus('Anime', 'Watchlist');
+});
+
+final watchedAnimeProvider = StreamProvider.autoDispose<List<EntertainmentItem>>((ref) {
+  return ref.watch(entertainmentRepositoryProvider).watchByTypeAndStatus('Anime', 'Completed');
+});
+
+final gamesBacklogProvider = StreamProvider.autoDispose<List<EntertainmentItem>>((ref) {
+  return ref.watch(entertainmentRepositoryProvider).watchByTypeAndStatus('Game', 'Watchlist');
+});
+
+final playedGamesProvider = StreamProvider.autoDispose<List<EntertainmentItem>>((ref) {
+  return ref.watch(entertainmentRepositoryProvider).watchByTypeAndStatus('Game', 'Completed');
+});

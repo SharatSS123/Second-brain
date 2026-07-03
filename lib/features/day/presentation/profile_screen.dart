@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/auth/auth_provider.dart';
 import '../../../core/theme/app_theme.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: AppColors.bg,
       appBar: AppBar(
@@ -83,15 +85,15 @@ class ProfileScreen extends StatelessWidget {
               _InfoItem(
                   icon: Icons.person_outline_rounded,
                   label: 'Edit Profile',
-                  onTap: () {}),
+                  onTap: () => _comingSoon(context, 'Edit Profile')),
               _InfoItem(
                   icon: Icons.lock_outline_rounded,
                   label: 'Change PIN',
-                  onTap: () {}),
+                  onTap: () => _comingSoon(context, 'Change PIN')),
               _InfoItem(
                   icon: Icons.notifications_outlined,
                   label: 'Notification Preferences',
-                  onTap: () {},
+                  onTap: () => _comingSoon(context, 'Notification Preferences'),
                   isLast: true),
             ],
           ),
@@ -115,7 +117,7 @@ class ProfileScreen extends StatelessWidget {
                           fontSize: 12,
                           fontWeight: FontWeight.w700)),
                 ),
-                onTap: () {},
+                onTap: () => _comingSoon(context, 'Plan management'),
                 isLast: true,
               ),
             ],
@@ -125,19 +127,32 @@ class ProfileScreen extends StatelessWidget {
             width: double.infinity,
             height: 50,
             child: OutlinedButton(
-              onPressed: () {},
+              onPressed: () {
+                ref.read(authNotifierProvider.notifier).lock();
+                Navigator.pop(context);
+              },
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.red,
                 side: const BorderSide(color: AppColors.red),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14)),
               ),
-              child: const Text('Sign Out',
+              child: const Text('Lock App',
                   style:
                       TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void _comingSoon(BuildContext context, String feature) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('$feature coming soon'),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
       ),
     );
   }

@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/database/app_database.dart';
 import '../../../data/repositories/planner_repository.dart';
+import '../utils/planner_utils.dart';
 
 final plannerRepositoryProvider = Provider<PlannerRepository>((ref) {
   return PlannerRepository(ref.watch(appDatabaseProvider));
@@ -48,4 +49,19 @@ final routinesProvider = StreamProvider<List<Routine>>((ref) {
 final routineBlocksProvider =
     StreamProvider.family<List<RoutineBlock>, String>((ref, routineId) {
   return ref.watch(plannerRepositoryProvider).watchRoutineBlocks(routineId);
+});
+
+final activitySubtasksProvider =
+    StreamProvider.autoDispose.family<List<ActivitySubtask>, String>(
+        (ref, activityId) {
+  return ref.watch(plannerRepositoryProvider).watchSubtasks(activityId);
+});
+
+final liveActivityProvider = StreamProvider.autoDispose<PlannerActivity?>((ref) {
+  final now = DateTime.now();
+  final today = DateTime(now.year, now.month, now.day);
+  return ref
+      .watch(plannerRepositoryProvider)
+      .watchActivitiesForDate(today)
+      .map((list) => list.where((a) => isActiveNow(a.startTime, a.endTime) && !a.isCompleted).firstOrNull);
 });

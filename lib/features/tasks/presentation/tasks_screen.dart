@@ -33,12 +33,19 @@ class _TasksScreenState extends ConsumerState<TasksScreen>
     return Scaffold(
       backgroundColor: AppColors.bg,
       appBar: AppBar(
-        leading:
-            IconButton(icon: const Icon(Icons.menu_rounded), onPressed: () {}),
-        title: const Text('Tasks'),
+        backgroundColor: AppColors.bg,
+        title: const Text(
+          'Tasks',
+          style: TextStyle(
+              color: AppColors.textPrimary, fontWeight: FontWeight.w700),
+        ),
         actions: [
-          IconButton(icon: const Icon(Icons.filter_list_rounded), onPressed: () {}),
-          IconButton(icon: const Icon(Icons.more_vert_rounded), onPressed: () {}),
+          IconButton(
+            icon: const Icon(Icons.filter_list_rounded, color: AppColors.textSecondary),
+            onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Task filters coming soon'), behavior: SnackBarBehavior.floating),
+            ),
+          ),
         ],
         bottom: TabBar(
           controller: _tabController,

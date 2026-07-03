@@ -4,9 +4,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/entertainment_providers.dart';
 
 class AddEntertainmentSheet extends ConsumerStatefulWidget {
-  final String type; // 'Movie' or 'TV Series'
+  final String type;
+  final List<String>? customGenres;
+  final IconData? leadingIcon;
+  final String? addLabel; // e.g. 'Add to Backlog'
 
-  const AddEntertainmentSheet({super.key, required this.type});
+  const AddEntertainmentSheet({
+    super.key,
+    required this.type,
+    this.customGenres,
+    this.leadingIcon,
+    this.addLabel,
+  });
 
   @override
   ConsumerState<AddEntertainmentSheet> createState() => _AddEntertainmentSheetState();
@@ -20,7 +29,7 @@ class _AddEntertainmentSheetState extends ConsumerState<AddEntertainmentSheet> {
   final _notesController = TextEditingController();
   bool _isSaving = false;
 
-  static const _genres = [
+  static const _defaultGenres = [
     'Action', 'Adventure', 'Animation', 'Comedy', 'Crime',
     'Documentary', 'Drama', 'Fantasy', 'Horror', 'Mystery',
     'Romance', 'Sci-Fi', 'Thriller', 'Western',
@@ -38,7 +47,22 @@ class _AddEntertainmentSheetState extends ConsumerState<AddEntertainmentSheet> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final label = widget.type == 'Movie' ? 'Movie' : 'Series';
+    final genres = widget.customGenres ?? _defaultGenres;
+    final label = switch (widget.type) {
+      'Movie' => 'Movie',
+      'TV Series' => 'Series',
+      'Anime' => 'Anime',
+      'Game' => 'Game',
+      _ => widget.type,
+    };
+    final titleIcon = widget.leadingIcon ??
+        switch (widget.type) {
+          'Movie' => Icons.movie_outlined,
+          'TV Series' => Icons.tv_outlined,
+          'Anime' => Icons.animation_rounded,
+          'Game' => Icons.sports_esports_rounded,
+          _ => Icons.add_outlined,
+        };
 
     return Padding(
       padding: EdgeInsets.only(
@@ -67,7 +91,7 @@ class _AddEntertainmentSheetState extends ConsumerState<AddEntertainmentSheet> {
             const SizedBox(height: 16),
 
             Text(
-              'Add to Watchlist',
+              widget.addLabel ?? 'Add to Watchlist',
               style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 4),
@@ -87,11 +111,15 @@ class _AddEntertainmentSheetState extends ConsumerState<AddEntertainmentSheet> {
               textCapitalization: TextCapitalization.words,
               decoration: InputDecoration(
                 labelText: '$label title *',
-                hintText: 'e.g. Inception',
+                hintText: switch (widget.type) {
+                  'Movie' => 'e.g. Inception',
+                  'TV Series' => 'e.g. Breaking Bad',
+                  'Anime' => 'e.g. Attack on Titan',
+                  'Game' => 'e.g. Elden Ring',
+                  _ => 'Title',
+                },
                 border: const OutlineInputBorder(),
-                prefixIcon: Icon(
-                  widget.type == 'Movie' ? Icons.movie_outlined : Icons.tv_outlined,
-                ),
+                prefixIcon: Icon(titleIcon),
               ),
               validator: (v) => (v == null || v.trim().isEmpty) ? 'Title is required' : null,
             ),
@@ -130,8 +158,8 @@ class _AddEntertainmentSheetState extends ConsumerState<AddEntertainmentSheet> {
                 Expanded(
                   child: Autocomplete<String>(
                     optionsBuilder: (textEditingValue) {
-                      if (textEditingValue.text.isEmpty) return _genres;
-                      return _genres.where(
+                      if (textEditingValue.text.isEmpty) return genres;
+                      return genres.where(
                         (g) => g.toLowerCase().contains(textEditingValue.text.toLowerCase()),
                       );
                     },

@@ -474,28 +474,18 @@ class _AddBlockToTemplateSheetState
               color: AppColors.card,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Row(
+            child: const Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.check_box_outlined,
+                Icon(Icons.check_box_outlined,
                     color: AppColors.primary, size: 18),
-                const SizedBox(width: 6),
-                const Text('Task',
+                SizedBox(width: 6),
+                Text('Activity',
                     style: TextStyle(
                         color: AppColors.textPrimary, fontSize: 13)),
-                const SizedBox(width: 6),
-                GestureDetector(
-                  onTap: () {},
-                  child: const Icon(Icons.close_rounded,
-                      color: AppColors.textMuted, size: 16),
-                ),
               ],
             ),
           ),
-          const SizedBox(height: 4),
-          const Text('Routines can only contain tasks.',
-              style: TextStyle(
-                  color: AppColors.textMuted, fontSize: 11)),
           const SizedBox(height: 16),
           _label('Title'),
           TextField(

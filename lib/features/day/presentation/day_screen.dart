@@ -233,21 +233,36 @@ class _DayTimeline extends ConsumerWidget {
   }
 }
 
-class _NowCard extends StatelessWidget {
+class _NowCard extends ConsumerWidget {
   const _NowCard({required this.activity});
   final PlannerActivity activity;
 
   @override
-  Widget build(BuildContext context) {
-    final (color, icon) = categoryStyle(activity.category);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final subtasksAsync = ref.watch(activitySubtasksProvider(activity.id));
     final mLeft = minutesLeft(activity.endTime);
     final s = parseTod(activity.startTime);
     final e = parseTod(activity.endTime);
     final total = (e.hour * 60 + e.minute) - (s.hour * 60 + s.minute);
     final elapsed = total - mLeft;
-    final progress =
-        total > 0 ? (elapsed / total).clamp(0.0, 1.0) : 0.0;
+    final timeProgress = total > 0 ? (elapsed / total).clamp(0.0, 1.0) : 0.0;
 
+    return subtasksAsync.when(
+      loading: () => _buildCard(context, timeProgress, null, null, mLeft),
+      error: (_, __) => _buildCard(context, timeProgress, null, null, mLeft),
+      data: (subtasks) {
+        if (subtasks.isEmpty) {
+          return _buildCard(context, timeProgress, null, null, mLeft);
+        }
+        final done = subtasks.where((s) => s.isCompleted).length;
+        final subtaskProgress = done / subtasks.length;
+        return _buildCard(context, subtaskProgress, done, subtasks.length, mLeft);
+      },
+    );
+  }
+
+  Widget _buildCard(BuildContext context, double progress, int? done, int? total, int mLeft) {
+    final (_, icon) = categoryStyle(activity.category);
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
       padding: const EdgeInsets.all(16),
@@ -272,10 +287,16 @@ class _NowCard extends StatelessWidget {
             children: [
               _badge('NOW'),
               const Spacer(),
-              Text(
-                mLeft > 0 ? '$mLeft min left' : 'Ending',
-                style: const TextStyle(color: Colors.white70, fontSize: 13),
-              ),
+              if (done != null && total != null)
+                Text(
+                  '$done of $total done',
+                  style: const TextStyle(color: Colors.white70, fontSize: 13),
+                )
+              else
+                Text(
+                  mLeft > 0 ? '$mLeft min left' : 'Ending',
+                  style: const TextStyle(color: Colors.white70, fontSize: 13),
+                ),
             ],
           ),
           const SizedBox(height: 12),
@@ -306,13 +327,6 @@ class _NowCard extends StatelessWidget {
                             color: Colors.white70, fontSize: 12)),
                   ],
                 ),
-              ),
-              // Task progress placeholder
-              Column(
-                children: [
-                  const Icon(Icons.play_arrow_rounded,
-                      color: Colors.white, size: 20),
-                ],
               ),
             ],
           ),
@@ -531,121 +545,324 @@ class _TimelineRow extends StatelessWidget {
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (_) => _ActivityQuickSheet(activity: activity, ref: ref),
+      builder: (_) => _ActivityQuickSheet(activity: activity),
     );
   }
 }
 
-class _ActivityQuickSheet extends StatelessWidget {
-  const _ActivityQuickSheet(
-      {required this.activity, required this.ref});
+class _ActivityQuickSheet extends ConsumerStatefulWidget {
+  const _ActivityQuickSheet({required this.activity});
   final PlannerActivity activity;
-  final WidgetRef ref;
+
+  @override
+  ConsumerState<_ActivityQuickSheet> createState() => _ActivityQuickSheetState();
+}
+
+class _ActivityQuickSheetState extends ConsumerState<_ActivityQuickSheet> {
+  final _addTaskController = TextEditingController();
+  bool _showAddField = false;
+
+  @override
+  void dispose() {
+    _addTaskController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _addSubtask(List<ActivitySubtask> existing) async {
+    final title = _addTaskController.text.trim();
+    if (title.isEmpty) return;
+    await ref.read(plannerRepositoryProvider).addSubtask(
+          activityId: widget.activity.id,
+          title: title,
+          sortOrder: existing.length,
+        );
+    _addTaskController.clear();
+    setState(() => _showAddField = false);
+  }
 
   @override
   Widget build(BuildContext context) {
+    final activity = widget.activity;
     final (color, icon) = categoryStyle(activity.category);
-    return Container(
-      padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Center(
-            child: Container(
-              width: 36,
-              height: 4,
-              decoration: BoxDecoration(
-                  color: AppColors.border,
-                  borderRadius: BorderRadius.circular(2)),
-            ),
-          ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              Container(
-                width: 44,
-                height: 44,
+    final subtasksAsync = ref.watch(activitySubtasksProvider(activity.id));
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
+        decoration: const BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Center(
+              child: Container(
+                width: 36,
+                height: 4,
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(icon, color: color, size: 22),
+                    color: AppColors.border,
+                    borderRadius: BorderRadius.circular(2)),
               ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(activity.title,
-                        style: const TextStyle(
-                            color: AppColors.textPrimary,
-                            fontSize: 17,
-                            fontWeight: FontWeight.w700)),
-                    Text(
-                        '${displayTime(activity.startTime)} – ${displayTime(activity.endTime)}',
-                        style: const TextStyle(
-                            color: AppColors.textSecondary,
-                            fontSize: 13)),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(icon, color: color, size: 22),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(activity.title,
+                          style: const TextStyle(
+                              color: AppColors.textPrimary,
+                              fontSize: 17,
+                              fontWeight: FontWeight.w700)),
+                      Text(
+                          '${displayTime(activity.startTime)} – ${displayTime(activity.endTime)}',
+                          style: const TextStyle(
+                              color: AppColors.textSecondary,
+                              fontSize: 13)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // ── Subtasks section ──────────────────────────────────────────
+            subtasksAsync.when(
+              loading: () => const SizedBox.shrink(),
+              error: (_, __) => const SizedBox.shrink(),
+              data: (subtasks) => Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (subtasks.isNotEmpty) ...[
+                    Row(
+                      children: [
+                        const Text(
+                          'TASKS',
+                          style: TextStyle(
+                            color: AppColors.textMuted,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                        const Spacer(),
+                        Text(
+                          '${subtasks.where((s) => s.isCompleted).length}/${subtasks.length}',
+                          style: const TextStyle(
+                              color: AppColors.textMuted, fontSize: 11),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(2),
+                      child: LinearProgressIndicator(
+                        value: subtasks.isNotEmpty
+                            ? subtasks.where((s) => s.isCompleted).length / subtasks.length
+                            : 0,
+                        minHeight: 3,
+                        backgroundColor: AppColors.border,
+                        valueColor: AlwaysStoppedAnimation<Color>(color),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxHeight: 200),
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: subtasks.length,
+                        itemBuilder: (ctx, i) {
+                          final sub = subtasks[i];
+                          return Dismissible(
+                            key: ValueKey(sub.id),
+                            direction: DismissDirection.endToStart,
+                            background: Container(
+                              alignment: Alignment.centerRight,
+                              padding: const EdgeInsets.only(right: 12),
+                              child: const Icon(Icons.delete_outline,
+                                  color: AppColors.red, size: 18),
+                            ),
+                            onDismissed: (_) => ref
+                                .read(plannerRepositoryProvider)
+                                .deleteSubtask(sub.id),
+                            child: InkWell(
+                              onTap: () => ref
+                                  .read(plannerRepositoryProvider)
+                                  .toggleSubtask(sub.id, sub.isCompleted),
+                              borderRadius: BorderRadius.circular(8),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 7, horizontal: 2),
+                                child: Row(
+                                  children: [
+                                    AnimatedContainer(
+                                      duration: const Duration(milliseconds: 180),
+                                      width: 20,
+                                      height: 20,
+                                      decoration: BoxDecoration(
+                                        color: sub.isCompleted
+                                            ? AppColors.green
+                                            : Colors.transparent,
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: sub.isCompleted
+                                              ? AppColors.green
+                                              : AppColors.border,
+                                          width: 1.5,
+                                        ),
+                                      ),
+                                      child: sub.isCompleted
+                                          ? const Icon(Icons.check_rounded,
+                                              color: Colors.white, size: 12)
+                                          : null,
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: Text(
+                                        sub.title,
+                                        style: TextStyle(
+                                          color: sub.isCompleted
+                                              ? AppColors.textMuted
+                                              : AppColors.textPrimary,
+                                          fontSize: 14,
+                                          decoration: sub.isCompleted
+                                              ? TextDecoration.lineThrough
+                                              : null,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
                   ],
-                ),
+
+                  // Add task row
+                  if (_showAddField)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _addTaskController,
+                              autofocus: true,
+                              style: const TextStyle(
+                                  color: AppColors.textPrimary, fontSize: 14),
+                              decoration: const InputDecoration(
+                                hintText: 'Task name',
+                                isDense: true,
+                                contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 0, vertical: 8),
+                                border: UnderlineInputBorder(),
+                              ),
+                              onSubmitted: (_) => _addSubtask(subtasks),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          GestureDetector(
+                            onTap: () => _addSubtask(subtasks),
+                            child: const Icon(Icons.send_rounded,
+                                color: AppColors.primary, size: 20),
+                          ),
+                          const SizedBox(width: 4),
+                          GestureDetector(
+                            onTap: () => setState(() {
+                              _showAddField = false;
+                              _addTaskController.clear();
+                            }),
+                            child: const Icon(Icons.close_rounded,
+                                color: AppColors.textMuted, size: 20),
+                          ),
+                        ],
+                      ),
+                    )
+                  else
+                    TextButton.icon(
+                      onPressed: () => setState(() => _showAddField = true),
+                      icon: const Icon(Icons.add_rounded, size: 16),
+                      label: const Text('Add task'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppColors.textSecondary,
+                        padding: EdgeInsets.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                    ),
+                ],
               ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () async {
-                    await ref
-                        .read(plannerRepositoryProvider)
-                        .deleteActivity(activity.id);
-                    if (context.mounted) Navigator.pop(context);
-                  },
-                  icon: const Icon(Icons.delete_outline_rounded,
-                      size: 18),
-                  label: const Text('Delete'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.red,
-                    side: const BorderSide(color: AppColors.red),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
+            ),
+
+            const SizedBox(height: 16),
+
+            // ── Action buttons ────────────────────────────────────────────
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () async {
+                      await ref
+                          .read(plannerRepositoryProvider)
+                          .deleteActivity(activity.id);
+                      if (context.mounted) Navigator.pop(context);
+                    },
+                    icon: const Icon(Icons.delete_outline_rounded, size: 18),
+                    label: const Text('Delete'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.red,
+                      side: const BorderSide(color: AppColors.red),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () async {
-                    await ref
-                        .read(plannerRepositoryProvider)
-                        .toggleComplete(activity.id, activity.isCompleted);
-                    if (context.mounted) Navigator.pop(context);
-                  },
-                  icon: Icon(
-                    activity.isCompleted
-                        ? Icons.undo_rounded
-                        : Icons.check_rounded,
-                    size: 18,
-                  ),
-                  label: Text(activity.isCompleted ? 'Undo' : 'Complete'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: activity.isCompleted
-                        ? AppColors.border
-                        : AppColors.green,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () async {
+                      await ref
+                          .read(plannerRepositoryProvider)
+                          .toggleComplete(activity.id, activity.isCompleted);
+                      if (context.mounted) Navigator.pop(context);
+                    },
+                    icon: Icon(
+                      activity.isCompleted
+                          ? Icons.undo_rounded
+                          : Icons.check_rounded,
+                      size: 18,
+                    ),
+                    label: Text(activity.isCompleted ? 'Undo' : 'Complete'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: activity.isCompleted
+                          ? AppColors.border
+                          : AppColors.green,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

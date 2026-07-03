@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../day/presentation/profile_screen.dart';
 
 class MoreScreen extends StatelessWidget {
   const MoreScreen({super.key});
@@ -49,21 +50,26 @@ class MoreScreen extends StatelessWidget {
             color: AppColors.teal,
             label: 'Profile',
             subtitle: 'Your account & preferences',
-            onTap: () {},
+            onTap: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const ProfileScreen())),
           ),
           _MoreTile(
             icon: Icons.notifications_rounded,
             color: AppColors.orange,
             label: 'Notifications',
             subtitle: 'Reminders & alerts',
-            onTap: () {},
+            onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Notifications coming soon'), behavior: SnackBarBehavior.floating),
+            ),
           ),
           _MoreTile(
             icon: Icons.security_rounded,
             color: AppColors.green,
             label: 'Security',
             subtitle: 'PIN & biometric settings',
-            onTap: () {},
+            onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Security settings coming soon'), behavior: SnackBarBehavior.floating),
+            ),
             isLast: true,
           ),
         ],

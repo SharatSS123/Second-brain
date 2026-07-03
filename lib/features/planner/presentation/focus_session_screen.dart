@@ -78,10 +78,23 @@ class _FocusSessionScreenState extends State<FocusSessionScreen> {
             style: const TextStyle(
                 fontSize: 17, fontWeight: FontWeight.w600)),
         actions: [
-          IconButton(
-              icon: const Icon(Icons.edit_outlined), onPressed: () {}),
-          IconButton(
-              icon: const Icon(Icons.more_vert_rounded), onPressed: () {}),
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert_rounded),
+            color: AppColors.card,
+            onSelected: (v) {
+              if (v == 'end') _stop();
+            },
+            itemBuilder: (_) => [
+              const PopupMenuItem(
+                value: 'end',
+                child: Row(children: [
+                  Icon(Icons.stop_circle_outlined, color: AppColors.red, size: 20),
+                  SizedBox(width: 8),
+                  Text('End session', style: TextStyle(color: AppColors.red)),
+                ]),
+              ),
+            ],
+          ),
         ],
       ),
       body: Padding(

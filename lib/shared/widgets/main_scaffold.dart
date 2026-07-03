@@ -2,8 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_theme.dart';
 import 'left_drawer.dart';
+import 'live_activity_banner.dart';
 
 final mainScaffoldKey = GlobalKey<ScaffoldState>();
+
+const _morePaths = [
+  '/tasks',
+  '/learning',
+  '/entertainment',
+  '/knowledge',
+  '/books',
+  '/planner',
+];
 
 class MainScaffold extends StatelessWidget {
   final Widget child;
@@ -30,7 +40,9 @@ class MainScaffold extends StatelessWidget {
   int _currentIndex(BuildContext context) {
     final location = GoRouterState.of(context).uri.path;
     final idx = _tabs.indexWhere((t) => location.startsWith(t.path));
-    return idx < 0 ? 0 : idx;
+    if (idx >= 0) return idx;
+    if (_morePaths.any((p) => location.startsWith(p))) return 3;
+    return 0;
   }
 
   @override
@@ -41,30 +53,205 @@ class MainScaffold extends StatelessWidget {
       backgroundColor: AppColors.bg,
       drawer: const LeftDrawer(),
       body: child,
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          color: AppColors.surface,
-          border:
-              Border(top: BorderSide(color: AppColors.divider, width: 0.5)),
-        ),
-        child: NavigationBar(
-          selectedIndex: currentIndex,
-          onDestinationSelected: (i) => context.go(_tabs[i].path),
-          backgroundColor: Colors.transparent,
-          indicatorColor: AppColors.primary.withValues(alpha: 0.15),
-          destinations: _tabs
-              .map((tab) => NavigationDestination(
-                    icon: Icon(tab.icon, color: AppColors.textSecondary),
-                    selectedIcon:
-                        Icon(tab.activeIcon, color: AppColors.primary),
-                    label: tab.label,
-                  ))
-              .toList(),
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const LiveActivityBanner(),
+          Container(
+            decoration: const BoxDecoration(
+              color: AppColors.surface,
+              border: Border(
+                  top: BorderSide(color: AppColors.divider, width: 0.5)),
+            ),
+            child: NavigationBar(
+              selectedIndex: currentIndex,
+              onDestinationSelected: (i) {
+                if (i == 3) {
+                  _showMoreSheet(context);
+                } else {
+                  context.go(_tabs[i].path);
+                }
+              },
+              backgroundColor: Colors.transparent,
+              indicatorColor: AppColors.primary.withValues(alpha: 0.15),
+              destinations: [
+                ..._tabs.map((tab) => NavigationDestination(
+                      icon: Icon(tab.icon, color: AppColors.textSecondary),
+                      selectedIcon:
+                          Icon(tab.activeIcon, color: AppColors.primary),
+                      label: tab.label,
+                    )),
+                const NavigationDestination(
+                  icon: Icon(Icons.grid_view_outlined,
+                      color: AppColors.textSecondary),
+                  selectedIcon:
+                      Icon(Icons.grid_view_rounded, color: AppColors.primary),
+                  label: 'More',
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showMoreSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (sheetCtx) => _MoreSheet(
+        onTap: (path) {
+          Navigator.pop(sheetCtx);
+          context.push(path);
+        },
+      ),
+    );
+  }
+}
+
+// ── More bottom sheet ──────────────────────────────────────────────────────
+
+class _MoreSheet extends StatelessWidget {
+  const _MoreSheet({required this.onTap});
+  final void Function(String path) onTap;
+
+  static const _items = [
+    _MoreItem(
+      icon: Icons.check_circle_outline_rounded,
+      label: 'Tasks',
+      color: AppColors.green,
+      path: '/tasks',
+    ),
+    _MoreItem(
+      icon: Icons.school_rounded,
+      label: 'Learn',
+      color: AppColors.amber,
+      path: '/learning',
+    ),
+    _MoreItem(
+      icon: Icons.movie_rounded,
+      label: 'Watch',
+      color: AppColors.blue,
+      path: '/entertainment',
+    ),
+    _MoreItem(
+      icon: Icons.menu_book_rounded,
+      label: 'Books',
+      color: Color(0xFF22C55E),
+      path: '/books',
+    ),
+    _MoreItem(
+      icon: Icons.folder_rounded,
+      label: 'Vault',
+      color: AppColors.orange,
+      path: '/knowledge',
+    ),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 14, 20, 32),
+      decoration: const BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Handle
+          Center(
+            child: Container(
+              width: 36,
+              height: 4,
+              decoration: BoxDecoration(
+                  color: AppColors.border,
+                  borderRadius: BorderRadius.circular(2)),
+            ),
+          ),
+          const SizedBox(height: 18),
+          const Text(
+            'More',
+            style: TextStyle(
+              color: AppColors.textPrimary,
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Feature grid — 5 items, 3 + 2 layout using Row/Wrap
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: _items
+                .map((item) => _MoreTile(item: item, onTap: onTap))
+                .toList(),
+          ),
+          const SizedBox(height: 4),
+        ],
+      ),
+    );
+  }
+}
+
+class _MoreTile extends StatelessWidget {
+  const _MoreTile({required this.item, required this.onTap});
+  final _MoreItem item;
+  final void Function(String path) onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => onTap(item.path),
+      child: SizedBox(
+        width: (MediaQuery.of(context).size.width - 40 - 48) / 5,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                color: item.color.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                    color: item.color.withValues(alpha: 0.2), width: 1),
+              ),
+              child: Icon(item.icon, color: item.color, size: 24),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              item.label,
+              style: const TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
       ),
     );
   }
 }
+
+class _MoreItem {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final String path;
+  const _MoreItem({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.path,
+  });
+}
+
+// ── Nav tab model ──────────────────────────────────────────────────────────
 
 class _NavTab {
   final IconData icon;

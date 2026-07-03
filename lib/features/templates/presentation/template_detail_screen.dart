@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../data/database/app_database.dart';
 import '../../planner/providers/planner_providers.dart';
@@ -212,6 +213,7 @@ class TemplateDetailScreen extends ConsumerWidget {
                     .read(plannerRepositoryProvider)
                     .applyRoutineToDate(blocks, selectedDate);
                 if (context.mounted) {
+                  context.go('/day');
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
@@ -219,7 +221,6 @@ class TemplateDetailScreen extends ConsumerWidget {
                       backgroundColor: AppColors.primary,
                     ),
                   );
-                  Navigator.pop(context);
                 }
               },
               style: ElevatedButton.styleFrom(

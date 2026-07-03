@@ -222,6 +222,42 @@ class PlannerRepository {
     await (_db.delete(_db.routinesTable)..where((t) => t.id.equals(id))).go();
   }
 
+  // ── Activity Subtasks ─────────────────────────────────────────────────────
+
+  Stream<List<ActivitySubtask>> watchSubtasks(String activityId) {
+    return (_db.select(_db.activitySubtasksTable)
+          ..where((t) => t.activityId.equals(activityId))
+          ..orderBy([(t) => OrderingTerm.asc(t.sortOrder)]))
+        .watch();
+  }
+
+  Future<void> addSubtask({
+    required String activityId,
+    required String title,
+    required int sortOrder,
+  }) {
+    return _db.into(_db.activitySubtasksTable).insert(
+          ActivitySubtasksTableCompanion.insert(
+            id: _uuid.v4(),
+            activityId: activityId,
+            title: title,
+            sortOrder: Value(sortOrder),
+          ),
+        );
+  }
+
+  Future<void> toggleSubtask(String id, bool current) {
+    return (_db.update(_db.activitySubtasksTable)
+          ..where((t) => t.id.equals(id)))
+        .write(ActivitySubtasksTableCompanion(isCompleted: Value(!current)));
+  }
+
+  Future<void> deleteSubtask(String id) {
+    return (_db.delete(_db.activitySubtasksTable)
+          ..where((t) => t.id.equals(id)))
+        .go();
+  }
+
   Future<void> applyRoutineToDate(
       List<RoutineBlock> blocks, DateTime date) async {
     for (final b in blocks) {

@@ -22,6 +22,7 @@ class NotesRepository {
     required String title,
     required String content,
     String? color,
+    bool isPinned = false,
     List<String> tags = const [],
   }) {
     return _db.into(_db.notesTable).insert(
@@ -29,6 +30,7 @@ class NotesRepository {
             title: title,
             content: Value(content),
             color: Value(color),
+            isPinned: Value(isPinned),
             tags: Value(tags.isNotEmpty ? tags.join(',') : null),
           ),
         );
@@ -39,12 +41,14 @@ class NotesRepository {
     required String title,
     required String content,
     String? color,
+    bool? isPinned,
   }) {
     return (_db.update(_db.notesTable)..where((n) => n.id.equals(id)))
         .write(NotesTableCompanion(
           title: Value(title),
           content: Value(content),
           color: Value(color),
+          isPinned: isPinned != null ? Value(isPinned) : const Value.absent(),
           updatedAt: Value(DateTime.now()),
         ));
   }

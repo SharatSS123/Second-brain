@@ -8,6 +8,7 @@ import 'tables/entertainment_table.dart';
 import 'tables/books_table.dart';
 import 'tables/knowledge_table.dart';
 import 'tables/planner_table.dart';
+import 'tables/activity_subtasks_table.dart';
 
 part 'app_database.g.dart';
 
@@ -23,12 +24,13 @@ part 'app_database.g.dart';
   TimeBlocksTable,
   RoutinesTable,
   RoutineBlocksTable,
+  ActivitySubtasksTable,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -45,6 +47,9 @@ class AppDatabase extends _$AppDatabase {
           }
           if (from < 4) {
             await m.createTable(booksTable);
+          }
+          if (from < 5) {
+            await m.createTable(activitySubtasksTable);
           }
         },
       );

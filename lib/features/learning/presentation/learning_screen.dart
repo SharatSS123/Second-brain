@@ -32,10 +32,18 @@ class _LearningScreenState extends ConsumerState<LearningScreen>
     return Scaffold(
       backgroundColor: AppColors.bg,
       appBar: AppBar(
-        leading: IconButton(icon: const Icon(Icons.menu_rounded), onPressed: () {}),
-        title: const Text('Learning Hub'),
+        backgroundColor: AppColors.bg,
+        title: const Text(
+          'Learning Hub',
+          style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w700),
+        ),
         actions: [
-          IconButton(icon: const Icon(Icons.search_rounded), onPressed: () {}),
+          IconButton(
+            icon: const Icon(Icons.search_rounded, color: AppColors.textSecondary),
+            onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Search coming soon'), behavior: SnackBarBehavior.floating),
+            ),
+          ),
         ],
         bottom: TabBar(
           controller: _tabController,
