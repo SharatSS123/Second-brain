@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../../data/database/tables/planner_table.dart';
+import '../../../data/database/app_database.dart';
 import '../utils/planner_utils.dart';
 
 class FocusSessionScreen extends StatefulWidget {

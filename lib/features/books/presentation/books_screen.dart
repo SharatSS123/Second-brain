@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../../data/database/tables/books_table.dart';
+import '../../../data/database/app_database.dart';
 import '../../../data/repositories/books_repository.dart';
 import '../providers/books_providers.dart';
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../../data/database/tables/planner_table.dart';
+import '../../../data/database/app_database.dart';
 import '../../planner/providers/planner_providers.dart';
 import '../../planner/utils/planner_utils.dart';
 import 'template_detail_screen.dart';

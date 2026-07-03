@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/database/app_database.dart';
-import '../../../data/database/tables/planner_table.dart';
 import '../../../data/repositories/planner_repository.dart';
 
 final plannerRepositoryProvider = Provider<PlannerRepository>((ref) {

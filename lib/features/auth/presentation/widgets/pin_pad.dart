@@ -63,46 +63,59 @@ class NumberPad extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        _row(['1', '2', '3']),
-        const SizedBox(height: 12),
-        _row(['4', '5', '6']),
-        const SizedBox(height: 12),
-        _row(['7', '8', '9']),
-        const SizedBox(height: 12),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Biometric or empty
-            showBiometric
-                ? _KeyButton.icon(
-                    icon: biometricIcon,
-                    color: AppColors.primary,
-                    onTap: onBiometric ?? () {},
-                  )
-                : const SizedBox(width: 80),
-            const SizedBox(width: 12),
-            _KeyButton(label: '0', onTap: () => onDigit('0')),
-            const SizedBox(width: 12),
-            _KeyButton.icon(
-              icon: Icons.backspace_outlined,
-              color: AppColors.textSecondary,
-              onTap: onDelete,
-            ),
-          ],
-        ),
-      ],
-    );
+    return LayoutBuilder(builder: (context, constraints) {
+      final maxWidth = constraints.maxWidth.isFinite
+          ? constraints.maxWidth
+          : MediaQuery.of(context).size.width;
+      final spacing = 10.0;
+      final buttonSize = ((maxWidth - spacing * 4) / 3).clamp(60.0, 80.0);
+      return Column(
+        children: [
+          _row(['1', '2', '3'], buttonSize, spacing),
+          SizedBox(height: spacing),
+          _row(['4', '5', '6'], buttonSize, spacing),
+          SizedBox(height: spacing),
+          _row(['7', '8', '9'], buttonSize, spacing),
+          SizedBox(height: spacing),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Biometric or empty
+              showBiometric
+                  ? _KeyButton.icon(
+                      icon: biometricIcon,
+                      color: AppColors.primary,
+                      size: buttonSize,
+                      onTap: onBiometric ?? () {},
+                    )
+                  : SizedBox(width: buttonSize),
+              SizedBox(width: spacing),
+              _KeyButton(label: '0', size: buttonSize, onTap: () => onDigit('0')),
+              SizedBox(width: spacing),
+              _KeyButton.icon(
+                icon: Icons.backspace_outlined,
+                color: AppColors.textSecondary,
+                size: buttonSize,
+                onTap: onDelete,
+              ),
+            ],
+          ),
+        ],
+      );
+    });
   }
 
-  Widget _row(List<String> digits) {
+  Widget _row(List<String> digits, double buttonSize, double spacing) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: digits.asMap().entries.map((e) {
         return Padding(
-          padding: EdgeInsets.only(left: e.key == 0 ? 0 : 12),
-          child: _KeyButton(label: e.value, onTap: () => onDigit(e.value)),
+          padding: EdgeInsets.only(left: e.key == 0 ? 0 : spacing),
+          child: _KeyButton(
+            label: e.value,
+            size: buttonSize,
+            onTap: () => onDigit(e.value),
+          ),
         );
       }).toList(),
     );
@@ -113,13 +126,14 @@ class _KeyButton extends StatelessWidget {
   final String? label;
   final IconData? icon;
   final Color? color;
+  final double size;
   final VoidCallback onTap;
 
-  const _KeyButton({this.label, required this.onTap})
+  const _KeyButton({this.label, required this.size, required this.onTap})
       : icon = null,
         color = null;
 
-  const _KeyButton.icon({required this.icon, required this.color, required this.onTap})
+  const _KeyButton.icon({required this.icon, required this.color, required this.size, required this.onTap})
       : label = null;
 
   @override
@@ -132,8 +146,8 @@ class _KeyButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(40),
         splashColor: AppColors.primary.withValues(alpha: 0.2),
         child: SizedBox(
-          width: 80,
-          height: 80,
+          width: size,
+          height: size,
           child: Center(
             child: label != null
                 ? Text(

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../../data/database/tables/planner_table.dart';
+import '../../../data/database/app_database.dart';
 import '../../../shared/widgets/main_scaffold.dart';
 import '../../planner/providers/planner_providers.dart';
 import '../../planner/utils/planner_utils.dart';
@@ -711,7 +712,7 @@ class _EmptyDayView extends ConsumerWidget {
             width: double.infinity,
             height: 50,
             child: ElevatedButton(
-              onPressed: () => Navigator.pushNamed(context, '/templates'),
+              onPressed: () => context.push('/templates'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,

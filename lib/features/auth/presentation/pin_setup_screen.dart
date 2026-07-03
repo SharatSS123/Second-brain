@@ -140,21 +140,21 @@ class _PinSetupScreenState extends ConsumerState<PinSetupScreen>
                         : const SizedBox.shrink(),
                   ),
 
-                  const Spacer(flex: 2),
+                  const Spacer(flex: 1),
 
                   // CORTEX logo
-                  const CortexLogo(size: 80),
-                  const SizedBox(height: 18),
+                  const CortexLogo(size: 72),
+                  const SizedBox(height: 16),
                   const Text(
                     'CORTEX',
                     style: TextStyle(
                       color: AppColors.textPrimary,
-                      fontSize: 26,
+                      fontSize: 24,
                       fontWeight: FontWeight.w900,
                       letterSpacing: 7,
                     ),
                   ),
-                  const SizedBox(height: 28),
+                  const SizedBox(height: 24),
 
                   // Step title
                   Text(
@@ -165,7 +165,7 @@ class _PinSetupScreenState extends ConsumerState<PinSetupScreen>
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 8),
                   Text(
                     _isConfirmStep
                         ? 'Enter your PIN once more to confirm'
@@ -177,7 +177,7 @@ class _PinSetupScreenState extends ConsumerState<PinSetupScreen>
                     textAlign: TextAlign.center,
                   ),
 
-                  const Spacer(flex: 2),
+                  const Spacer(flex: 1),
 
                   // PIN label
                   Row(
@@ -232,20 +232,25 @@ class _PinSetupScreenState extends ConsumerState<PinSetupScreen>
                     ),
                   ),
 
-                  const Spacer(flex: 3),
+                  const Spacer(flex: 1),
 
                   // Overall onboarding step indicator (profile ✓ | pin active | biometric)
                   const OnboardingSteps(current: 1),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 18),
 
                   // Number pad
-                  NumberPad(
-                    onDigit: _onDigit,
-                    onDelete: _onDelete,
-                    showBiometric: false,
+                  Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 360),
+                      child: NumberPad(
+                        onDigit: _onDigit,
+                        onDelete: _onDelete,
+                        showBiometric: false,
+                      ),
+                    ),
                   ),
 
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 24),
                 ],
               ),
             ),
