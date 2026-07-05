@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(flutter --version)",
-      "Bash(dart run *)"
+      "Bash(dart run *)",
+      "Bash(grep -n 'abstract class _$AppDatabase\\\\|RoutineBlocksTableTable\\\\|AppDatabaseManager\\\\|$$RoutineBlocksTableTableProcessedTableManager\\\\|class $$Routine\\\\|get routineBlocksTable\\\\|allSchemaEntities\\\\|dayTodosTable' C:/learning/app_flutter/lib/data/database/app_database.g.dart)"
     ]
   }
 }

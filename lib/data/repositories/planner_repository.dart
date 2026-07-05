@@ -258,6 +258,37 @@ class PlannerRepository {
         .go();
   }
 
+  // ── Day Todos ─────────────────────────────────────────────────────────────────
+
+  Stream<List<DayTodo>> watchTodosForDate(DateTime date) {
+    final start = DateTime(date.year, date.month, date.day);
+    final end = start.add(const Duration(days: 1));
+    return (_db.select(_db.dayTodosTable)
+          ..where((t) => t.date.isBiggerOrEqualValue(start) & t.date.isSmallerThanValue(end))
+          ..orderBy([(t) => OrderingTerm.asc(t.createdAt)]))
+        .watch();
+  }
+
+  Future<void> addTodo({required String title, required DateTime date}) {
+    return _db.into(_db.dayTodosTable).insert(
+      DayTodosTableCompanion.insert(id: _uuid.v4(), title: title, date: date),
+    );
+  }
+
+  Future<void> toggleTodo(String id, bool current) {
+    return (_db.update(_db.dayTodosTable)..where((t) => t.id.equals(id)))
+        .write(DayTodosTableCompanion(isCompleted: Value(!current)));
+  }
+
+  Future<void> deleteTodo(String id) {
+    return (_db.delete(_db.dayTodosTable)..where((t) => t.id.equals(id))).go();
+  }
+
+  Future<void> updateTodoTitle(String id, String title) {
+    return (_db.update(_db.dayTodosTable)..where((t) => t.id.equals(id)))
+        .write(DayTodosTableCompanion(title: Value(title)));
+  }
+
   Future<void> applyRoutineToDate(
       List<RoutineBlock> blocks, DateTime date) async {
     for (final b in blocks) {

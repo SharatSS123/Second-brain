@@ -9,6 +9,8 @@ import 'tables/books_table.dart';
 import 'tables/knowledge_table.dart';
 import 'tables/planner_table.dart';
 import 'tables/activity_subtasks_table.dart';
+import 'tables/day_todos_table.dart';
+import 'tables/checklists_table.dart';
 
 part 'app_database.g.dart';
 
@@ -25,12 +27,15 @@ part 'app_database.g.dart';
   RoutinesTable,
   RoutineBlocksTable,
   ActivitySubtasksTable,
+  DayTodosTable,
+  ChecklistsTable,
+  ChecklistItemsTable,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -50,6 +55,13 @@ class AppDatabase extends _$AppDatabase {
           }
           if (from < 5) {
             await m.createTable(activitySubtasksTable);
+          }
+          if (from < 6) {
+            await m.createTable(dayTodosTable);
+          }
+          if (from < 7) {
+            await m.createTable(checklistsTable);
+            await m.createTable(checklistItemsTable);
           }
         },
       );

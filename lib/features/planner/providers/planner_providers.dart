@@ -65,3 +65,20 @@ final liveActivityProvider = StreamProvider.autoDispose<PlannerActivity?>((ref) 
       .watchActivitiesForDate(today)
       .map((list) => list.where((a) => isActiveNow(a.startTime, a.endTime) && !a.isCompleted).firstOrNull);
 });
+
+final todayTodosProvider = StreamProvider<List<DayTodo>>((ref) {
+  final date = ref.watch(selectedDateProvider);
+  return ref.watch(plannerRepositoryProvider).watchTodosForDate(date);
+});
+
+final homeTodayActivitiesProvider = StreamProvider.autoDispose<List<PlannerActivity>>((ref) {
+  final now = DateTime.now();
+  final today = DateTime(now.year, now.month, now.day);
+  return ref.watch(plannerRepositoryProvider).watchActivitiesForDate(today);
+});
+
+final homeTodayTodosProvider = StreamProvider.autoDispose<List<DayTodo>>((ref) {
+  final now = DateTime.now();
+  final today = DateTime(now.year, now.month, now.day);
+  return ref.watch(plannerRepositoryProvider).watchTodosForDate(today);
+});

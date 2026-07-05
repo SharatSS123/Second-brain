@@ -5277,6 +5277,834 @@ class ActivitySubtasksTableCompanion
   }
 }
 
+class $DayTodosTableTable extends DayTodosTable
+    with TableInfo<$DayTodosTableTable, DayTodo> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DayTodosTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _dateMeta = const VerificationMeta('date');
+  @override
+  late final GeneratedColumn<DateTime> date = GeneratedColumn<DateTime>(
+      'date', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _isCompletedMeta =
+      const VerificationMeta('isCompleted');
+  @override
+  late final GeneratedColumn<bool> isCompleted = GeneratedColumn<bool>(
+      'is_completed', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("is_completed" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  @override
+  List<GeneratedColumn> get $columns => [id, title, date, isCompleted, createdAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'day_todos_table';
+  @override
+  VerificationContext validateIntegrity(Insertable<DayTodo> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('date')) {
+      context.handle(
+          _dateMeta, date.isAcceptableOrUnknown(data['date']!, _dateMeta));
+    } else if (isInserting) {
+      context.missing(_dateMeta);
+    }
+    if (data.containsKey('is_completed')) {
+      context.handle(
+          _isCompletedMeta,
+          isCompleted.isAcceptableOrUnknown(
+              data['is_completed']!, _isCompletedMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  DayTodo map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DayTodo(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      date: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}date'])!,
+      isCompleted: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_completed'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+    );
+  }
+
+  @override
+  $DayTodosTableTable createAlias(String alias) {
+    return $DayTodosTableTable(attachedDatabase, alias);
+  }
+}
+
+class DayTodo extends DataClass implements Insertable<DayTodo> {
+  final String id;
+  final String title;
+  final DateTime date;
+  final bool isCompleted;
+  final DateTime createdAt;
+  const DayTodo(
+      {required this.id,
+      required this.title,
+      required this.date,
+      required this.isCompleted,
+      required this.createdAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['title'] = Variable<String>(title);
+    map['date'] = Variable<DateTime>(date);
+    map['is_completed'] = Variable<bool>(isCompleted);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  DayTodosTableCompanion toCompanion(bool nullToAbsent) {
+    return DayTodosTableCompanion(
+      id: Value(id),
+      title: Value(title),
+      date: Value(date),
+      isCompleted: Value(isCompleted),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory DayTodo.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DayTodo(
+      id: serializer.fromJson<String>(json['id']),
+      title: serializer.fromJson<String>(json['title']),
+      date: serializer.fromJson<DateTime>(json['date']),
+      isCompleted: serializer.fromJson<bool>(json['isCompleted']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'title': serializer.toJson<String>(title),
+      'date': serializer.toJson<DateTime>(date),
+      'isCompleted': serializer.toJson<bool>(isCompleted),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  DayTodo copyWith(
+          {String? id,
+          String? title,
+          DateTime? date,
+          bool? isCompleted,
+          DateTime? createdAt}) =>
+      DayTodo(
+        id: id ?? this.id,
+        title: title ?? this.title,
+        date: date ?? this.date,
+        isCompleted: isCompleted ?? this.isCompleted,
+        createdAt: createdAt ?? this.createdAt,
+      );
+  DayTodo copyWithCompanion(DayTodosTableCompanion data) {
+    return DayTodo(
+      id: data.id.present ? data.id.value : this.id,
+      title: data.title.present ? data.title.value : this.title,
+      date: data.date.present ? data.date.value : this.date,
+      isCompleted:
+          data.isCompleted.present ? data.isCompleted.value : this.isCompleted,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DayTodo(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('date: $date, ')
+          ..write('isCompleted: $isCompleted, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, title, date, isCompleted, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DayTodo &&
+          other.id == this.id &&
+          other.title == this.title &&
+          other.date == this.date &&
+          other.isCompleted == this.isCompleted &&
+          other.createdAt == this.createdAt);
+}
+
+class DayTodosTableCompanion extends UpdateCompanion<DayTodo> {
+  final Value<String> id;
+  final Value<String> title;
+  final Value<DateTime> date;
+  final Value<bool> isCompleted;
+  final Value<DateTime> createdAt;
+  final Value<int> rowid;
+  const DayTodosTableCompanion({
+    this.id = const Value.absent(),
+    this.title = const Value.absent(),
+    this.date = const Value.absent(),
+    this.isCompleted = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  DayTodosTableCompanion.insert({
+    required String id,
+    required String title,
+    required DateTime date,
+    this.isCompleted = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        title = Value(title),
+        date = Value(date);
+  static Insertable<DayTodo> custom({
+    Expression<String>? id,
+    Expression<String>? title,
+    Expression<DateTime>? date,
+    Expression<bool>? isCompleted,
+    Expression<DateTime>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (title != null) 'title': title,
+      if (date != null) 'date': date,
+      if (isCompleted != null) 'is_completed': isCompleted,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  DayTodosTableCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? title,
+      Value<DateTime>? date,
+      Value<bool>? isCompleted,
+      Value<DateTime>? createdAt,
+      Value<int>? rowid}) {
+    return DayTodosTableCompanion(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      date: date ?? this.date,
+      isCompleted: isCompleted ?? this.isCompleted,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (date.present) {
+      map['date'] = Variable<DateTime>(date.value);
+    }
+    if (isCompleted.present) {
+      map['is_completed'] = Variable<bool>(isCompleted.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DayTodosTableCompanion(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('date: $date, ')
+          ..write('isCompleted: $isCompleted, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ChecklistsTableTable extends ChecklistsTable
+    with TableInfo<$ChecklistsTableTable, Checklist> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ChecklistsTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  @override
+  List<GeneratedColumn> get $columns => [id, name, createdAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'checklists_table';
+  @override
+  VerificationContext validateIntegrity(Insertable<Checklist> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Checklist map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Checklist(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+    );
+  }
+
+  @override
+  $ChecklistsTableTable createAlias(String alias) {
+    return $ChecklistsTableTable(attachedDatabase, alias);
+  }
+}
+
+class Checklist extends DataClass implements Insertable<Checklist> {
+  final String id;
+  final String name;
+  final DateTime createdAt;
+  const Checklist({required this.id, required this.name, required this.createdAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  ChecklistsTableCompanion toCompanion(bool nullToAbsent) {
+    return ChecklistsTableCompanion(
+      id: Value(id),
+      name: Value(name),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory Checklist.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Checklist(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  Checklist copyWith({String? id, String? name, DateTime? createdAt}) =>
+      Checklist(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        createdAt: createdAt ?? this.createdAt,
+      );
+  Checklist copyWithCompanion(ChecklistsTableCompanion data) {
+    return Checklist(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Checklist(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, name, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Checklist &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.createdAt == this.createdAt);
+}
+
+class ChecklistsTableCompanion extends UpdateCompanion<Checklist> {
+  final Value<String> id;
+  final Value<String> name;
+  final Value<DateTime> createdAt;
+  final Value<int> rowid;
+  const ChecklistsTableCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ChecklistsTableCompanion.insert({
+    required String id,
+    required String name,
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        name = Value(name);
+  static Insertable<Checklist> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<DateTime>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ChecklistsTableCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? name,
+      Value<DateTime>? createdAt,
+      Value<int>? rowid}) {
+    return ChecklistsTableCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) map['id'] = Variable<String>(id.value);
+    if (name.present) map['name'] = Variable<String>(name.value);
+    if (createdAt.present) map['created_at'] = Variable<DateTime>(createdAt.value);
+    if (rowid.present) map['rowid'] = Variable<int>(rowid.value);
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ChecklistsTableCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ChecklistItemsTableTable extends ChecklistItemsTable
+    with TableInfo<$ChecklistItemsTableTable, ChecklistItem> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ChecklistItemsTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _checklistIdMeta =
+      const VerificationMeta('checklistId');
+  @override
+  late final GeneratedColumn<String> checklistId = GeneratedColumn<String>(
+      'checklist_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _isCheckedMeta =
+      const VerificationMeta('isChecked');
+  @override
+  late final GeneratedColumn<bool> isChecked = GeneratedColumn<bool>(
+      'is_checked', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("is_checked" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _sortOrderMeta =
+      const VerificationMeta('sortOrder');
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+      'sort_order', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, checklistId, title, isChecked, sortOrder];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'checklist_items_table';
+  @override
+  VerificationContext validateIntegrity(Insertable<ChecklistItem> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('checklist_id')) {
+      context.handle(
+          _checklistIdMeta,
+          checklistId.isAcceptableOrUnknown(
+              data['checklist_id']!, _checklistIdMeta));
+    } else if (isInserting) {
+      context.missing(_checklistIdMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('is_checked')) {
+      context.handle(_isCheckedMeta,
+          isChecked.isAcceptableOrUnknown(data['is_checked']!, _isCheckedMeta));
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(_sortOrderMeta,
+          sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ChecklistItem map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ChecklistItem(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      checklistId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}checklist_id'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      isChecked: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_checked'])!,
+      sortOrder: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}sort_order'])!,
+    );
+  }
+
+  @override
+  $ChecklistItemsTableTable createAlias(String alias) {
+    return $ChecklistItemsTableTable(attachedDatabase, alias);
+  }
+}
+
+class ChecklistItem extends DataClass implements Insertable<ChecklistItem> {
+  final String id;
+  final String checklistId;
+  final String title;
+  final bool isChecked;
+  final int sortOrder;
+  const ChecklistItem(
+      {required this.id,
+      required this.checklistId,
+      required this.title,
+      required this.isChecked,
+      required this.sortOrder});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['checklist_id'] = Variable<String>(checklistId);
+    map['title'] = Variable<String>(title);
+    map['is_checked'] = Variable<bool>(isChecked);
+    map['sort_order'] = Variable<int>(sortOrder);
+    return map;
+  }
+
+  ChecklistItemsTableCompanion toCompanion(bool nullToAbsent) {
+    return ChecklistItemsTableCompanion(
+      id: Value(id),
+      checklistId: Value(checklistId),
+      title: Value(title),
+      isChecked: Value(isChecked),
+      sortOrder: Value(sortOrder),
+    );
+  }
+
+  factory ChecklistItem.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ChecklistItem(
+      id: serializer.fromJson<String>(json['id']),
+      checklistId: serializer.fromJson<String>(json['checklistId']),
+      title: serializer.fromJson<String>(json['title']),
+      isChecked: serializer.fromJson<bool>(json['isChecked']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'checklistId': serializer.toJson<String>(checklistId),
+      'title': serializer.toJson<String>(title),
+      'isChecked': serializer.toJson<bool>(isChecked),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+    };
+  }
+
+  ChecklistItem copyWith(
+          {String? id,
+          String? checklistId,
+          String? title,
+          bool? isChecked,
+          int? sortOrder}) =>
+      ChecklistItem(
+        id: id ?? this.id,
+        checklistId: checklistId ?? this.checklistId,
+        title: title ?? this.title,
+        isChecked: isChecked ?? this.isChecked,
+        sortOrder: sortOrder ?? this.sortOrder,
+      );
+  ChecklistItem copyWithCompanion(ChecklistItemsTableCompanion data) {
+    return ChecklistItem(
+      id: data.id.present ? data.id.value : this.id,
+      checklistId: data.checklistId.present
+          ? data.checklistId.value
+          : this.checklistId,
+      title: data.title.present ? data.title.value : this.title,
+      isChecked: data.isChecked.present ? data.isChecked.value : this.isChecked,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ChecklistItem(')
+          ..write('id: $id, ')
+          ..write('checklistId: $checklistId, ')
+          ..write('title: $title, ')
+          ..write('isChecked: $isChecked, ')
+          ..write('sortOrder: $sortOrder')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, checklistId, title, isChecked, sortOrder);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ChecklistItem &&
+          other.id == this.id &&
+          other.checklistId == this.checklistId &&
+          other.title == this.title &&
+          other.isChecked == this.isChecked &&
+          other.sortOrder == this.sortOrder);
+}
+
+class ChecklistItemsTableCompanion extends UpdateCompanion<ChecklistItem> {
+  final Value<String> id;
+  final Value<String> checklistId;
+  final Value<String> title;
+  final Value<bool> isChecked;
+  final Value<int> sortOrder;
+  final Value<int> rowid;
+  const ChecklistItemsTableCompanion({
+    this.id = const Value.absent(),
+    this.checklistId = const Value.absent(),
+    this.title = const Value.absent(),
+    this.isChecked = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ChecklistItemsTableCompanion.insert({
+    required String id,
+    required String checklistId,
+    required String title,
+    this.isChecked = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        checklistId = Value(checklistId),
+        title = Value(title);
+  static Insertable<ChecklistItem> custom({
+    Expression<String>? id,
+    Expression<String>? checklistId,
+    Expression<String>? title,
+    Expression<bool>? isChecked,
+    Expression<int>? sortOrder,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (checklistId != null) 'checklist_id': checklistId,
+      if (title != null) 'title': title,
+      if (isChecked != null) 'is_checked': isChecked,
+      if (sortOrder != null) 'sort_order': sortOrder,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ChecklistItemsTableCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? checklistId,
+      Value<String>? title,
+      Value<bool>? isChecked,
+      Value<int>? sortOrder,
+      Value<int>? rowid}) {
+    return ChecklistItemsTableCompanion(
+      id: id ?? this.id,
+      checklistId: checklistId ?? this.checklistId,
+      title: title ?? this.title,
+      isChecked: isChecked ?? this.isChecked,
+      sortOrder: sortOrder ?? this.sortOrder,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) map['id'] = Variable<String>(id.value);
+    if (checklistId.present) map['checklist_id'] = Variable<String>(checklistId.value);
+    if (title.present) map['title'] = Variable<String>(title.value);
+    if (isChecked.present) map['is_checked'] = Variable<bool>(isChecked.value);
+    if (sortOrder.present) map['sort_order'] = Variable<int>(sortOrder.value);
+    if (rowid.present) map['rowid'] = Variable<int>(rowid.value);
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ChecklistItemsTableCompanion(')
+          ..write('id: $id, ')
+          ..write('checklistId: $checklistId, ')
+          ..write('title: $title, ')
+          ..write('isChecked: $isChecked, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -5299,6 +6127,11 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $RoutineBlocksTableTable(this);
   late final $ActivitySubtasksTableTable activitySubtasksTable =
       $ActivitySubtasksTableTable(this);
+  late final $DayTodosTableTable dayTodosTable = $DayTodosTableTable(this);
+  late final $ChecklistsTableTable checklistsTable =
+      $ChecklistsTableTable(this);
+  late final $ChecklistItemsTableTable checklistItemsTable =
+      $ChecklistItemsTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -5315,7 +6148,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         timeBlocksTable,
         routinesTable,
         routineBlocksTable,
-        activitySubtasksTable
+        activitySubtasksTable,
+        dayTodosTable,
+        checklistsTable,
+        checklistItemsTable,
       ];
 }
 
@@ -8189,6 +9025,181 @@ typedef $$ActivitySubtasksTableTableProcessedTableManager
         ActivitySubtask,
         PrefetchHooks Function()>;
 
+typedef $$DayTodosTableTableCreateCompanionBuilder = DayTodosTableCompanion
+    Function({
+  required String id,
+  required String title,
+  required DateTime date,
+  Value<bool> isCompleted,
+  Value<DateTime> createdAt,
+  Value<int> rowid,
+});
+typedef $$DayTodosTableTableUpdateCompanionBuilder = DayTodosTableCompanion
+    Function({
+  Value<String> id,
+  Value<String> title,
+  Value<DateTime> date,
+  Value<bool> isCompleted,
+  Value<DateTime> createdAt,
+  Value<int> rowid,
+});
+
+class $$DayTodosTableTableFilterComposer
+    extends Composer<_$AppDatabase, $DayTodosTableTable> {
+  $$DayTodosTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get date => $composableBuilder(
+      column: $table.date, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isCompleted => $composableBuilder(
+      column: $table.isCompleted, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$DayTodosTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $DayTodosTableTable> {
+  $$DayTodosTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get date => $composableBuilder(
+      column: $table.date, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isCompleted => $composableBuilder(
+      column: $table.isCompleted, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$DayTodosTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DayTodosTableTable> {
+  $$DayTodosTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get date =>
+      $composableBuilder(column: $table.date, builder: (column) => column);
+
+  GeneratedColumn<bool> get isCompleted =>
+      $composableBuilder(column: $table.isCompleted, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$DayTodosTableTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $DayTodosTableTable,
+    DayTodo,
+    $$DayTodosTableTableFilterComposer,
+    $$DayTodosTableTableOrderingComposer,
+    $$DayTodosTableTableAnnotationComposer,
+    $$DayTodosTableTableCreateCompanionBuilder,
+    $$DayTodosTableTableUpdateCompanionBuilder,
+    (
+      DayTodo,
+      BaseReferences<_$AppDatabase, $DayTodosTableTable, DayTodo>
+    ),
+    DayTodo,
+    PrefetchHooks Function()> {
+  $$DayTodosTableTableTableManager(
+      _$AppDatabase db, $DayTodosTableTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DayTodosTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DayTodosTableTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DayTodosTableTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> title = const Value.absent(),
+            Value<DateTime> date = const Value.absent(),
+            Value<bool> isCompleted = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              DayTodosTableCompanion(
+            id: id,
+            title: title,
+            date: date,
+            isCompleted: isCompleted,
+            createdAt: createdAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String title,
+            required DateTime date,
+            Value<bool> isCompleted = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              DayTodosTableCompanion.insert(
+            id: id,
+            title: title,
+            date: date,
+            isCompleted: isCompleted,
+            createdAt: createdAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$DayTodosTableTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $DayTodosTableTable,
+    DayTodo,
+    $$DayTodosTableTableFilterComposer,
+    $$DayTodosTableTableOrderingComposer,
+    $$DayTodosTableTableAnnotationComposer,
+    $$DayTodosTableTableCreateCompanionBuilder,
+    $$DayTodosTableTableUpdateCompanionBuilder,
+    (
+      DayTodo,
+      BaseReferences<_$AppDatabase, $DayTodosTableTable, DayTodo>
+    ),
+    DayTodo,
+    PrefetchHooks Function()>;
+
 class $AppDatabaseManager {
   final _$AppDatabase _db;
   $AppDatabaseManager(this._db);
@@ -8219,4 +9230,6 @@ class $AppDatabaseManager {
   $$ActivitySubtasksTableTableTableManager get activitySubtasksTable =>
       $$ActivitySubtasksTableTableTableManager(
           _db, _db.activitySubtasksTable);
+  $$DayTodosTableTableTableManager get dayTodosTable =>
+      $$DayTodosTableTableTableManager(_db, _db.dayTodosTable);
 }
