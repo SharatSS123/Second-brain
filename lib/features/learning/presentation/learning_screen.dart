@@ -95,7 +95,7 @@ class _TopicsTab extends ConsumerWidget {
           crossAxisCount: 2,
           crossAxisSpacing: 12,
           mainAxisSpacing: 12,
-          childAspectRatio: 0.95,
+          childAspectRatio: 1.15,
         ),
         itemCount: topics.length + 1, // +1 for Add card
         itemBuilder: (context, i) {
@@ -158,7 +158,6 @@ class _TopicCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = _resolveColor();
-    final progress = topic.progressPercent / 100;
 
     return Material(
       color: AppColors.card,
@@ -192,27 +191,8 @@ class _TopicCard extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                   fontSize: 14,
                 ),
-                maxLines: 1,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                '${topic.progressPercent}%',
-                style: TextStyle(
-                  color: color,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 22,
-                ),
-              ),
-              const SizedBox(height: 8),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: LinearProgressIndicator(
-                  value: progress,
-                  backgroundColor: AppColors.border,
-                  color: color,
-                  minHeight: 4,
-                ),
               ),
             ],
           ),
@@ -591,6 +571,7 @@ class _AddTopicDialogState extends State<_AddTopicDialog> {
           TextField(
             controller: _controller,
             autofocus: true,
+            onChanged: (_) => setState(() {}),
             style: const TextStyle(color: AppColors.textPrimary),
             decoration: const InputDecoration(hintText: 'Topic name (e.g. Flutter)'),
           ),

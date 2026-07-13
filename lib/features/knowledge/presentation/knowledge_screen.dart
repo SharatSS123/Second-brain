@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../data/database/app_database.dart';
 import '../providers/knowledge_providers.dart';
@@ -97,6 +99,7 @@ class _KnowledgeScreenState extends ConsumerState<KnowledgeScreen> {
                             .toggleFavorite(items[i].id, !items[i].isFavorite),
                         onDelete: () =>
                             ref.read(knowledgeRepositoryProvider).delete(items[i].id),
+                        onTap: () => _showDetailsSheet(context, items[i]),
                       ),
                     ),
             ),
@@ -204,11 +207,13 @@ class _VaultItem extends StatelessWidget {
   final KnowledgeTableData item;
   final VoidCallback onToggleFavorite;
   final VoidCallback onDelete;
+  final VoidCallback onTap;
 
   const _VaultItem({
     required this.item,
     required this.onToggleFavorite,
     required this.onDelete,
+    required this.onTap,
   });
 
   @override
@@ -231,61 +236,69 @@ class _VaultItem extends StatelessWidget {
         child: const Icon(Icons.delete_outline, color: AppColors.red),
       ),
       onDismissed: (_) => onDelete(),
-      child: Container(
+      child: Card(
         margin: const EdgeInsets.only(bottom: 8),
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: AppColors.card,
+        elevation: 0,
+        color: AppColors.card,
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.border, width: 0.5),
+          side: const BorderSide(color: AppColors.border, width: 0.5),
         ),
-        child: Row(
-          children: [
-            Container(
-              width: 42,
-              height: 42,
-              decoration: BoxDecoration(
-                color: typeColor.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(typeIcon, color: typeColor, size: 20),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.title,
-                    style: const TextStyle(
-                      color: AppColors.textPrimary,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 14,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Row(
+              children: [
+                Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    color: typeColor.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    '${item.type}  ·  $timeAgo',
-                    style: const TextStyle(
-                        color: AppColors.textMuted, fontSize: 11),
+                  child: Icon(typeIcon, color: typeColor, size: 20),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.title,
+                        style: const TextStyle(
+                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '${item.type}  ·  $timeAgo',
+                        style: const TextStyle(
+                            color: AppColors.textMuted, fontSize: 11),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(width: 8),
+                GestureDetector(
+                  onTap: onToggleFavorite,
+                  child: Icon(
+                    item.isFavorite ? Icons.star_rounded : Icons.star_outline_rounded,
+                    color: item.isFavorite ? AppColors.amber : AppColors.textMuted,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                const Icon(Icons.chevron_right_rounded,
+                    color: AppColors.textMuted, size: 18),
+              ],
             ),
-            const SizedBox(width: 8),
-            GestureDetector(
-              onTap: onToggleFavorite,
-              child: Icon(
-                item.isFavorite ? Icons.star_rounded : Icons.star_outline_rounded,
-                color: item.isFavorite ? AppColors.amber : AppColors.textMuted,
-                size: 20,
-              ),
-            ),
-            const Icon(Icons.chevron_right_rounded,
-                color: AppColors.textMuted, size: 18),
-          ],
+          ),
         ),
       ),
     );
@@ -408,6 +421,7 @@ class _AddVaultSheetState extends State<_AddVaultSheet> {
           TextField(
             controller: _titleController,
             autofocus: true,
+            onChanged: (_) => setState(() {}),
             style: const TextStyle(color: AppColors.textPrimary),
             decoration: const InputDecoration(hintText: 'Title *'),
           ),
@@ -464,5 +478,240 @@ class _AddVaultSheetState extends State<_AddVaultSheet> {
         ],
       ),
     );
+  }
+}
+
+// ── Details Sheet ─────────────────────────────────────────────────────────────
+
+void _showDetailsSheet(BuildContext context, KnowledgeTableData item) {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (context) => _VaultItemDetailsSheet(item: item),
+  );
+}
+
+class _VaultItemDetailsSheet extends StatelessWidget {
+  final KnowledgeTableData item;
+  const _VaultItemDetailsSheet({required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    final typeColor = _typeColor(item.type);
+    final typeIcon = _typeIcon(item.type);
+    final hasContent = item.content != null && item.content!.trim().isNotEmpty;
+    final hasSource = item.source != null && item.source!.trim().isNotEmpty;
+    final isLink = item.type == 'Link' && hasContent;
+
+    return Container(
+      padding: EdgeInsets.fromLTRB(24, 20, 24, 24 + MediaQuery.of(context).viewInsets.bottom),
+      decoration: const BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: Container(
+              width: 36,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.border,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: typeColor.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(typeIcon, color: typeColor, size: 14),
+                    const SizedBox(width: 6),
+                    Text(
+                      item.type,
+                      style: TextStyle(
+                        color: typeColor,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Spacer(),
+              Text(
+                DateFormat('MMM d, yyyy  •  h:mm a').format(item.createdAt),
+                style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            item.title,
+            style: const TextStyle(
+              color: AppColors.textPrimary,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 16),
+          if (hasContent) ...[
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.card,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: AppColors.border, width: 0.5),
+              ),
+              child: SelectableText(
+                item.content!,
+                style: TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 13.5,
+                  height: 1.5,
+                  fontFamily: item.type == 'Code' ? 'monospace' : null,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+          if (hasSource) ...[
+            Row(
+              children: [
+                const Icon(Icons.info_outline_rounded, color: AppColors.textMuted, size: 14),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    'Source: ${item.source}',
+                    style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+          ],
+          Row(
+            children: [
+              if (hasContent) ...[
+                Expanded(
+                  child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.textSecondary,
+                      side: const BorderSide(color: AppColors.border),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    onPressed: () {
+                      Clipboard.setData(ClipboardData(text: item.content!));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Copied to clipboard'),
+                          behavior: SnackBarBehavior.floating,
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.copy_rounded, size: 18),
+                    label: const Text('Copy', style: TextStyle(fontWeight: FontWeight.w600)),
+                  ),
+                ),
+                const SizedBox(width: 12),
+              ],
+              if (isLink) ...[
+                Expanded(
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    onPressed: () => _launchURL(context, item.content!),
+                    icon: const Icon(Icons.open_in_new_rounded, size: 18),
+                    label: const Text('Open Link', style: TextStyle(fontWeight: FontWeight.w600)),
+                  ),
+                ),
+              ] else ...[
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.border,
+                      foregroundColor: AppColors.textPrimary,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Close', style: TextStyle(fontWeight: FontWeight.w600)),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color _typeColor(String type) {
+    switch (type) {
+      case 'Link': return AppColors.blue;
+      case 'Note': return AppColors.amber;
+      case 'Code': return AppColors.green;
+      case 'Idea': return AppColors.primary;
+      case 'Image': return AppColors.pink;
+      case 'Video': return AppColors.red;
+      case 'Audio': return AppColors.teal;
+      default: return AppColors.textMuted;
+    }
+  }
+
+  IconData _typeIcon(String type) {
+    switch (type) {
+      case 'Link': return Icons.link_rounded;
+      case 'Note': return Icons.description_outlined;
+      case 'Code': return Icons.code_rounded;
+      case 'Idea': return Icons.lightbulb_outline;
+      case 'Image': return Icons.image_outlined;
+      case 'Video': return Icons.play_circle_outline;
+      case 'Audio': return Icons.music_note_outlined;
+      default: return Icons.folder_outlined;
+    }
+  }
+
+  Future<void> _launchURL(BuildContext context, String urlString) async {
+    final uri = Uri.tryParse(urlString.trim());
+    if (uri != null) {
+      try {
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+        } else {
+          throw 'Could not launch $urlString';
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error opening link: $e'),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      }
+    }
   }
 }

@@ -3318,6 +3318,54 @@ class $PlannerActivitiesTableTable extends PlannerActivitiesTable
       type: DriftSqlType.string,
       requiredDuringInsert: false,
       defaultValue: const Constant('none'));
+  static const VerificationMeta _recurrenceParentIdMeta =
+      const VerificationMeta('recurrenceParentId');
+  @override
+  late final GeneratedColumn<String> recurrenceParentId =
+      GeneratedColumn<String>('recurrence_parent_id', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _recurrenceExceptionDateMeta =
+      const VerificationMeta('recurrenceExceptionDate');
+  @override
+  late final GeneratedColumn<DateTime> recurrenceExceptionDate =
+      GeneratedColumn<DateTime>('recurrence_exception_date', aliasedName, true,
+          type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _isDeletedMeta =
+      const VerificationMeta('isDeleted');
+  @override
+  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
+      'is_deleted', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_deleted" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _repeatIntervalMeta =
+      const VerificationMeta('repeatInterval');
+  @override
+  late final GeneratedColumn<int> repeatInterval = GeneratedColumn<int>(
+      'repeat_interval', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(1));
+  static const VerificationMeta _repeatDaysOfWeekMeta =
+      const VerificationMeta('repeatDaysOfWeek');
+  @override
+  late final GeneratedColumn<String> repeatDaysOfWeek = GeneratedColumn<String>(
+      'repeat_days_of_week', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _repeatEndsOnMeta =
+      const VerificationMeta('repeatEndsOn');
+  @override
+  late final GeneratedColumn<DateTime> repeatEndsOn = GeneratedColumn<DateTime>(
+      'repeat_ends_on', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _repeatEndsAfterMeta =
+      const VerificationMeta('repeatEndsAfter');
+  @override
+  late final GeneratedColumn<int> repeatEndsAfter = GeneratedColumn<int>(
+      'repeat_ends_after', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
   static const VerificationMeta _createdAtMeta =
       const VerificationMeta('createdAt');
   @override
@@ -3338,6 +3386,13 @@ class $PlannerActivitiesTableTable extends PlannerActivitiesTable
         description,
         reminderMinutes,
         repeatType,
+        recurrenceParentId,
+        recurrenceExceptionDate,
+        isDeleted,
+        repeatInterval,
+        repeatDaysOfWeek,
+        repeatEndsOn,
+        repeatEndsAfter,
         createdAt
       ];
   @override
@@ -3407,6 +3462,47 @@ class $PlannerActivitiesTableTable extends PlannerActivitiesTable
           repeatType.isAcceptableOrUnknown(
               data['repeat_type']!, _repeatTypeMeta));
     }
+    if (data.containsKey('recurrence_parent_id')) {
+      context.handle(
+          _recurrenceParentIdMeta,
+          recurrenceParentId.isAcceptableOrUnknown(
+              data['recurrence_parent_id']!, _recurrenceParentIdMeta));
+    }
+    if (data.containsKey('recurrence_exception_date')) {
+      context.handle(
+          _recurrenceExceptionDateMeta,
+          recurrenceExceptionDate.isAcceptableOrUnknown(
+              data['recurrence_exception_date']!,
+              _recurrenceExceptionDateMeta));
+    }
+    if (data.containsKey('is_deleted')) {
+      context.handle(_isDeletedMeta,
+          isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta));
+    }
+    if (data.containsKey('repeat_interval')) {
+      context.handle(
+          _repeatIntervalMeta,
+          repeatInterval.isAcceptableOrUnknown(
+              data['repeat_interval']!, _repeatIntervalMeta));
+    }
+    if (data.containsKey('repeat_days_of_week')) {
+      context.handle(
+          _repeatDaysOfWeekMeta,
+          repeatDaysOfWeek.isAcceptableOrUnknown(
+              data['repeat_days_of_week']!, _repeatDaysOfWeekMeta));
+    }
+    if (data.containsKey('repeat_ends_on')) {
+      context.handle(
+          _repeatEndsOnMeta,
+          repeatEndsOn.isAcceptableOrUnknown(
+              data['repeat_ends_on']!, _repeatEndsOnMeta));
+    }
+    if (data.containsKey('repeat_ends_after')) {
+      context.handle(
+          _repeatEndsAfterMeta,
+          repeatEndsAfter.isAcceptableOrUnknown(
+              data['repeat_ends_after']!, _repeatEndsAfterMeta));
+    }
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,
           createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
@@ -3440,6 +3536,21 @@ class $PlannerActivitiesTableTable extends PlannerActivitiesTable
           .read(DriftSqlType.int, data['${effectivePrefix}reminder_minutes']),
       repeatType: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}repeat_type'])!,
+      recurrenceParentId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}recurrence_parent_id']),
+      recurrenceExceptionDate: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}recurrence_exception_date']),
+      isDeleted: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_deleted'])!,
+      repeatInterval: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}repeat_interval'])!,
+      repeatDaysOfWeek: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}repeat_days_of_week']),
+      repeatEndsOn: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}repeat_ends_on']),
+      repeatEndsAfter: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}repeat_ends_after']),
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
     );
@@ -3462,6 +3573,13 @@ class PlannerActivity extends DataClass implements Insertable<PlannerActivity> {
   final String? description;
   final int? reminderMinutes;
   final String repeatType;
+  final String? recurrenceParentId;
+  final DateTime? recurrenceExceptionDate;
+  final bool isDeleted;
+  final int repeatInterval;
+  final String? repeatDaysOfWeek;
+  final DateTime? repeatEndsOn;
+  final int? repeatEndsAfter;
   final DateTime createdAt;
   const PlannerActivity(
       {required this.id,
@@ -3474,6 +3592,13 @@ class PlannerActivity extends DataClass implements Insertable<PlannerActivity> {
       this.description,
       this.reminderMinutes,
       required this.repeatType,
+      this.recurrenceParentId,
+      this.recurrenceExceptionDate,
+      required this.isDeleted,
+      required this.repeatInterval,
+      this.repeatDaysOfWeek,
+      this.repeatEndsOn,
+      this.repeatEndsAfter,
       required this.createdAt});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -3492,6 +3617,24 @@ class PlannerActivity extends DataClass implements Insertable<PlannerActivity> {
       map['reminder_minutes'] = Variable<int>(reminderMinutes);
     }
     map['repeat_type'] = Variable<String>(repeatType);
+    if (!nullToAbsent || recurrenceParentId != null) {
+      map['recurrence_parent_id'] = Variable<String>(recurrenceParentId);
+    }
+    if (!nullToAbsent || recurrenceExceptionDate != null) {
+      map['recurrence_exception_date'] =
+          Variable<DateTime>(recurrenceExceptionDate);
+    }
+    map['is_deleted'] = Variable<bool>(isDeleted);
+    map['repeat_interval'] = Variable<int>(repeatInterval);
+    if (!nullToAbsent || repeatDaysOfWeek != null) {
+      map['repeat_days_of_week'] = Variable<String>(repeatDaysOfWeek);
+    }
+    if (!nullToAbsent || repeatEndsOn != null) {
+      map['repeat_ends_on'] = Variable<DateTime>(repeatEndsOn);
+    }
+    if (!nullToAbsent || repeatEndsAfter != null) {
+      map['repeat_ends_after'] = Variable<int>(repeatEndsAfter);
+    }
     map['created_at'] = Variable<DateTime>(createdAt);
     return map;
   }
@@ -3512,6 +3655,23 @@ class PlannerActivity extends DataClass implements Insertable<PlannerActivity> {
           ? const Value.absent()
           : Value(reminderMinutes),
       repeatType: Value(repeatType),
+      recurrenceParentId: recurrenceParentId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(recurrenceParentId),
+      recurrenceExceptionDate: recurrenceExceptionDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(recurrenceExceptionDate),
+      isDeleted: Value(isDeleted),
+      repeatInterval: Value(repeatInterval),
+      repeatDaysOfWeek: repeatDaysOfWeek == null && nullToAbsent
+          ? const Value.absent()
+          : Value(repeatDaysOfWeek),
+      repeatEndsOn: repeatEndsOn == null && nullToAbsent
+          ? const Value.absent()
+          : Value(repeatEndsOn),
+      repeatEndsAfter: repeatEndsAfter == null && nullToAbsent
+          ? const Value.absent()
+          : Value(repeatEndsAfter),
       createdAt: Value(createdAt),
     );
   }
@@ -3530,6 +3690,15 @@ class PlannerActivity extends DataClass implements Insertable<PlannerActivity> {
       description: serializer.fromJson<String?>(json['description']),
       reminderMinutes: serializer.fromJson<int?>(json['reminderMinutes']),
       repeatType: serializer.fromJson<String>(json['repeatType']),
+      recurrenceParentId:
+          serializer.fromJson<String?>(json['recurrenceParentId']),
+      recurrenceExceptionDate:
+          serializer.fromJson<DateTime?>(json['recurrenceExceptionDate']),
+      isDeleted: serializer.fromJson<bool>(json['isDeleted']),
+      repeatInterval: serializer.fromJson<int>(json['repeatInterval']),
+      repeatDaysOfWeek: serializer.fromJson<String?>(json['repeatDaysOfWeek']),
+      repeatEndsOn: serializer.fromJson<DateTime?>(json['repeatEndsOn']),
+      repeatEndsAfter: serializer.fromJson<int?>(json['repeatEndsAfter']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
   }
@@ -3547,6 +3716,14 @@ class PlannerActivity extends DataClass implements Insertable<PlannerActivity> {
       'description': serializer.toJson<String?>(description),
       'reminderMinutes': serializer.toJson<int?>(reminderMinutes),
       'repeatType': serializer.toJson<String>(repeatType),
+      'recurrenceParentId': serializer.toJson<String?>(recurrenceParentId),
+      'recurrenceExceptionDate':
+          serializer.toJson<DateTime?>(recurrenceExceptionDate),
+      'isDeleted': serializer.toJson<bool>(isDeleted),
+      'repeatInterval': serializer.toJson<int>(repeatInterval),
+      'repeatDaysOfWeek': serializer.toJson<String?>(repeatDaysOfWeek),
+      'repeatEndsOn': serializer.toJson<DateTime?>(repeatEndsOn),
+      'repeatEndsAfter': serializer.toJson<int?>(repeatEndsAfter),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
   }
@@ -3562,6 +3739,13 @@ class PlannerActivity extends DataClass implements Insertable<PlannerActivity> {
           Value<String?> description = const Value.absent(),
           Value<int?> reminderMinutes = const Value.absent(),
           String? repeatType,
+          Value<String?> recurrenceParentId = const Value.absent(),
+          Value<DateTime?> recurrenceExceptionDate = const Value.absent(),
+          bool? isDeleted,
+          int? repeatInterval,
+          Value<String?> repeatDaysOfWeek = const Value.absent(),
+          Value<DateTime?> repeatEndsOn = const Value.absent(),
+          Value<int?> repeatEndsAfter = const Value.absent(),
           DateTime? createdAt}) =>
       PlannerActivity(
         id: id ?? this.id,
@@ -3576,6 +3760,22 @@ class PlannerActivity extends DataClass implements Insertable<PlannerActivity> {
             ? reminderMinutes.value
             : this.reminderMinutes,
         repeatType: repeatType ?? this.repeatType,
+        recurrenceParentId: recurrenceParentId.present
+            ? recurrenceParentId.value
+            : this.recurrenceParentId,
+        recurrenceExceptionDate: recurrenceExceptionDate.present
+            ? recurrenceExceptionDate.value
+            : this.recurrenceExceptionDate,
+        isDeleted: isDeleted ?? this.isDeleted,
+        repeatInterval: repeatInterval ?? this.repeatInterval,
+        repeatDaysOfWeek: repeatDaysOfWeek.present
+            ? repeatDaysOfWeek.value
+            : this.repeatDaysOfWeek,
+        repeatEndsOn:
+            repeatEndsOn.present ? repeatEndsOn.value : this.repeatEndsOn,
+        repeatEndsAfter: repeatEndsAfter.present
+            ? repeatEndsAfter.value
+            : this.repeatEndsAfter,
         createdAt: createdAt ?? this.createdAt,
       );
   PlannerActivity copyWithCompanion(PlannerActivitiesTableCompanion data) {
@@ -3595,6 +3795,25 @@ class PlannerActivity extends DataClass implements Insertable<PlannerActivity> {
           : this.reminderMinutes,
       repeatType:
           data.repeatType.present ? data.repeatType.value : this.repeatType,
+      recurrenceParentId: data.recurrenceParentId.present
+          ? data.recurrenceParentId.value
+          : this.recurrenceParentId,
+      recurrenceExceptionDate: data.recurrenceExceptionDate.present
+          ? data.recurrenceExceptionDate.value
+          : this.recurrenceExceptionDate,
+      isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
+      repeatInterval: data.repeatInterval.present
+          ? data.repeatInterval.value
+          : this.repeatInterval,
+      repeatDaysOfWeek: data.repeatDaysOfWeek.present
+          ? data.repeatDaysOfWeek.value
+          : this.repeatDaysOfWeek,
+      repeatEndsOn: data.repeatEndsOn.present
+          ? data.repeatEndsOn.value
+          : this.repeatEndsOn,
+      repeatEndsAfter: data.repeatEndsAfter.present
+          ? data.repeatEndsAfter.value
+          : this.repeatEndsAfter,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
   }
@@ -3612,14 +3831,38 @@ class PlannerActivity extends DataClass implements Insertable<PlannerActivity> {
           ..write('description: $description, ')
           ..write('reminderMinutes: $reminderMinutes, ')
           ..write('repeatType: $repeatType, ')
+          ..write('recurrenceParentId: $recurrenceParentId, ')
+          ..write('recurrenceExceptionDate: $recurrenceExceptionDate, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('repeatInterval: $repeatInterval, ')
+          ..write('repeatDaysOfWeek: $repeatDaysOfWeek, ')
+          ..write('repeatEndsOn: $repeatEndsOn, ')
+          ..write('repeatEndsAfter: $repeatEndsAfter, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, title, date, startTime, endTime, category,
-      isCompleted, description, reminderMinutes, repeatType, createdAt);
+  int get hashCode => Object.hash(
+      id,
+      title,
+      date,
+      startTime,
+      endTime,
+      category,
+      isCompleted,
+      description,
+      reminderMinutes,
+      repeatType,
+      recurrenceParentId,
+      recurrenceExceptionDate,
+      isDeleted,
+      repeatInterval,
+      repeatDaysOfWeek,
+      repeatEndsOn,
+      repeatEndsAfter,
+      createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -3634,6 +3877,13 @@ class PlannerActivity extends DataClass implements Insertable<PlannerActivity> {
           other.description == this.description &&
           other.reminderMinutes == this.reminderMinutes &&
           other.repeatType == this.repeatType &&
+          other.recurrenceParentId == this.recurrenceParentId &&
+          other.recurrenceExceptionDate == this.recurrenceExceptionDate &&
+          other.isDeleted == this.isDeleted &&
+          other.repeatInterval == this.repeatInterval &&
+          other.repeatDaysOfWeek == this.repeatDaysOfWeek &&
+          other.repeatEndsOn == this.repeatEndsOn &&
+          other.repeatEndsAfter == this.repeatEndsAfter &&
           other.createdAt == this.createdAt);
 }
 
@@ -3648,6 +3898,13 @@ class PlannerActivitiesTableCompanion extends UpdateCompanion<PlannerActivity> {
   final Value<String?> description;
   final Value<int?> reminderMinutes;
   final Value<String> repeatType;
+  final Value<String?> recurrenceParentId;
+  final Value<DateTime?> recurrenceExceptionDate;
+  final Value<bool> isDeleted;
+  final Value<int> repeatInterval;
+  final Value<String?> repeatDaysOfWeek;
+  final Value<DateTime?> repeatEndsOn;
+  final Value<int?> repeatEndsAfter;
   final Value<DateTime> createdAt;
   final Value<int> rowid;
   const PlannerActivitiesTableCompanion({
@@ -3661,6 +3918,13 @@ class PlannerActivitiesTableCompanion extends UpdateCompanion<PlannerActivity> {
     this.description = const Value.absent(),
     this.reminderMinutes = const Value.absent(),
     this.repeatType = const Value.absent(),
+    this.recurrenceParentId = const Value.absent(),
+    this.recurrenceExceptionDate = const Value.absent(),
+    this.isDeleted = const Value.absent(),
+    this.repeatInterval = const Value.absent(),
+    this.repeatDaysOfWeek = const Value.absent(),
+    this.repeatEndsOn = const Value.absent(),
+    this.repeatEndsAfter = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -3675,6 +3939,13 @@ class PlannerActivitiesTableCompanion extends UpdateCompanion<PlannerActivity> {
     this.description = const Value.absent(),
     this.reminderMinutes = const Value.absent(),
     this.repeatType = const Value.absent(),
+    this.recurrenceParentId = const Value.absent(),
+    this.recurrenceExceptionDate = const Value.absent(),
+    this.isDeleted = const Value.absent(),
+    this.repeatInterval = const Value.absent(),
+    this.repeatDaysOfWeek = const Value.absent(),
+    this.repeatEndsOn = const Value.absent(),
+    this.repeatEndsAfter = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
@@ -3693,6 +3964,13 @@ class PlannerActivitiesTableCompanion extends UpdateCompanion<PlannerActivity> {
     Expression<String>? description,
     Expression<int>? reminderMinutes,
     Expression<String>? repeatType,
+    Expression<String>? recurrenceParentId,
+    Expression<DateTime>? recurrenceExceptionDate,
+    Expression<bool>? isDeleted,
+    Expression<int>? repeatInterval,
+    Expression<String>? repeatDaysOfWeek,
+    Expression<DateTime>? repeatEndsOn,
+    Expression<int>? repeatEndsAfter,
     Expression<DateTime>? createdAt,
     Expression<int>? rowid,
   }) {
@@ -3707,6 +3985,15 @@ class PlannerActivitiesTableCompanion extends UpdateCompanion<PlannerActivity> {
       if (description != null) 'description': description,
       if (reminderMinutes != null) 'reminder_minutes': reminderMinutes,
       if (repeatType != null) 'repeat_type': repeatType,
+      if (recurrenceParentId != null)
+        'recurrence_parent_id': recurrenceParentId,
+      if (recurrenceExceptionDate != null)
+        'recurrence_exception_date': recurrenceExceptionDate,
+      if (isDeleted != null) 'is_deleted': isDeleted,
+      if (repeatInterval != null) 'repeat_interval': repeatInterval,
+      if (repeatDaysOfWeek != null) 'repeat_days_of_week': repeatDaysOfWeek,
+      if (repeatEndsOn != null) 'repeat_ends_on': repeatEndsOn,
+      if (repeatEndsAfter != null) 'repeat_ends_after': repeatEndsAfter,
       if (createdAt != null) 'created_at': createdAt,
       if (rowid != null) 'rowid': rowid,
     });
@@ -3723,6 +4010,13 @@ class PlannerActivitiesTableCompanion extends UpdateCompanion<PlannerActivity> {
       Value<String?>? description,
       Value<int?>? reminderMinutes,
       Value<String>? repeatType,
+      Value<String?>? recurrenceParentId,
+      Value<DateTime?>? recurrenceExceptionDate,
+      Value<bool>? isDeleted,
+      Value<int>? repeatInterval,
+      Value<String?>? repeatDaysOfWeek,
+      Value<DateTime?>? repeatEndsOn,
+      Value<int?>? repeatEndsAfter,
       Value<DateTime>? createdAt,
       Value<int>? rowid}) {
     return PlannerActivitiesTableCompanion(
@@ -3736,6 +4030,14 @@ class PlannerActivitiesTableCompanion extends UpdateCompanion<PlannerActivity> {
       description: description ?? this.description,
       reminderMinutes: reminderMinutes ?? this.reminderMinutes,
       repeatType: repeatType ?? this.repeatType,
+      recurrenceParentId: recurrenceParentId ?? this.recurrenceParentId,
+      recurrenceExceptionDate:
+          recurrenceExceptionDate ?? this.recurrenceExceptionDate,
+      isDeleted: isDeleted ?? this.isDeleted,
+      repeatInterval: repeatInterval ?? this.repeatInterval,
+      repeatDaysOfWeek: repeatDaysOfWeek ?? this.repeatDaysOfWeek,
+      repeatEndsOn: repeatEndsOn ?? this.repeatEndsOn,
+      repeatEndsAfter: repeatEndsAfter ?? this.repeatEndsAfter,
       createdAt: createdAt ?? this.createdAt,
       rowid: rowid ?? this.rowid,
     );
@@ -3774,6 +4076,28 @@ class PlannerActivitiesTableCompanion extends UpdateCompanion<PlannerActivity> {
     if (repeatType.present) {
       map['repeat_type'] = Variable<String>(repeatType.value);
     }
+    if (recurrenceParentId.present) {
+      map['recurrence_parent_id'] = Variable<String>(recurrenceParentId.value);
+    }
+    if (recurrenceExceptionDate.present) {
+      map['recurrence_exception_date'] =
+          Variable<DateTime>(recurrenceExceptionDate.value);
+    }
+    if (isDeleted.present) {
+      map['is_deleted'] = Variable<bool>(isDeleted.value);
+    }
+    if (repeatInterval.present) {
+      map['repeat_interval'] = Variable<int>(repeatInterval.value);
+    }
+    if (repeatDaysOfWeek.present) {
+      map['repeat_days_of_week'] = Variable<String>(repeatDaysOfWeek.value);
+    }
+    if (repeatEndsOn.present) {
+      map['repeat_ends_on'] = Variable<DateTime>(repeatEndsOn.value);
+    }
+    if (repeatEndsAfter.present) {
+      map['repeat_ends_after'] = Variable<int>(repeatEndsAfter.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -3796,6 +4120,13 @@ class PlannerActivitiesTableCompanion extends UpdateCompanion<PlannerActivity> {
           ..write('description: $description, ')
           ..write('reminderMinutes: $reminderMinutes, ')
           ..write('repeatType: $repeatType, ')
+          ..write('recurrenceParentId: $recurrenceParentId, ')
+          ..write('recurrenceExceptionDate: $recurrenceExceptionDate, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('repeatInterval: $repeatInterval, ')
+          ..write('repeatDaysOfWeek: $repeatDaysOfWeek, ')
+          ..write('repeatEndsOn: $repeatEndsOn, ')
+          ..write('repeatEndsAfter: $repeatEndsAfter, ')
           ..write('createdAt: $createdAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -5023,8 +5354,10 @@ class $ActivitySubtasksTableTable extends ActivitySubtasksTable
       context.missing(_idMeta);
     }
     if (data.containsKey('activity_id')) {
-      context.handle(_activityIdMeta,
-          activityId.isAcceptableOrUnknown(data['activity_id']!, _activityIdMeta));
+      context.handle(
+          _activityIdMeta,
+          activityId.isAcceptableOrUnknown(
+              data['activity_id']!, _activityIdMeta));
     } else if (isInserting) {
       context.missing(_activityIdMeta);
     }
@@ -5166,7 +5499,8 @@ class ActivitySubtask extends DataClass implements Insertable<ActivitySubtask> {
   }
 
   @override
-  int get hashCode => Object.hash(id, activityId, title, isCompleted, sortOrder);
+  int get hashCode =>
+      Object.hash(id, activityId, title, isCompleted, sortOrder);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -5178,8 +5512,7 @@ class ActivitySubtask extends DataClass implements Insertable<ActivitySubtask> {
           other.sortOrder == this.sortOrder);
 }
 
-class ActivitySubtasksTableCompanion
-    extends UpdateCompanion<ActivitySubtask> {
+class ActivitySubtasksTableCompanion extends UpdateCompanion<ActivitySubtask> {
   final Value<String> id;
   final Value<String> activityId;
   final Value<String> title;
@@ -5316,8 +5649,23 @@ class $DayTodosTableTable extends DayTodosTable
       type: DriftSqlType.dateTime,
       requiredDuringInsert: false,
       defaultValue: currentDateAndTime);
+  static const VerificationMeta _checklistIdMeta =
+      const VerificationMeta('checklistId');
   @override
-  List<GeneratedColumn> get $columns => [id, title, date, isCompleted, createdAt];
+  late final GeneratedColumn<String> checklistId = GeneratedColumn<String>(
+      'checklist_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sortOrderMeta =
+      const VerificationMeta('sortOrder');
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+      'sort_order', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, title, date, isCompleted, createdAt, checklistId, sortOrder];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -5355,6 +5703,16 @@ class $DayTodosTableTable extends DayTodosTable
       context.handle(_createdAtMeta,
           createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
     }
+    if (data.containsKey('checklist_id')) {
+      context.handle(
+          _checklistIdMeta,
+          checklistId.isAcceptableOrUnknown(
+              data['checklist_id']!, _checklistIdMeta));
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(_sortOrderMeta,
+          sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta));
+    }
     return context;
   }
 
@@ -5374,6 +5732,10 @@ class $DayTodosTableTable extends DayTodosTable
           .read(DriftSqlType.bool, data['${effectivePrefix}is_completed'])!,
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      checklistId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}checklist_id']),
+      sortOrder: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}sort_order'])!,
     );
   }
 
@@ -5389,12 +5751,16 @@ class DayTodo extends DataClass implements Insertable<DayTodo> {
   final DateTime date;
   final bool isCompleted;
   final DateTime createdAt;
+  final String? checklistId;
+  final int sortOrder;
   const DayTodo(
       {required this.id,
       required this.title,
       required this.date,
       required this.isCompleted,
-      required this.createdAt});
+      required this.createdAt,
+      this.checklistId,
+      required this.sortOrder});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -5403,6 +5769,10 @@ class DayTodo extends DataClass implements Insertable<DayTodo> {
     map['date'] = Variable<DateTime>(date);
     map['is_completed'] = Variable<bool>(isCompleted);
     map['created_at'] = Variable<DateTime>(createdAt);
+    if (!nullToAbsent || checklistId != null) {
+      map['checklist_id'] = Variable<String>(checklistId);
+    }
+    map['sort_order'] = Variable<int>(sortOrder);
     return map;
   }
 
@@ -5413,6 +5783,10 @@ class DayTodo extends DataClass implements Insertable<DayTodo> {
       date: Value(date),
       isCompleted: Value(isCompleted),
       createdAt: Value(createdAt),
+      checklistId: checklistId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(checklistId),
+      sortOrder: Value(sortOrder),
     );
   }
 
@@ -5425,6 +5799,8 @@ class DayTodo extends DataClass implements Insertable<DayTodo> {
       date: serializer.fromJson<DateTime>(json['date']),
       isCompleted: serializer.fromJson<bool>(json['isCompleted']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      checklistId: serializer.fromJson<String?>(json['checklistId']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
     );
   }
   @override
@@ -5436,6 +5812,8 @@ class DayTodo extends DataClass implements Insertable<DayTodo> {
       'date': serializer.toJson<DateTime>(date),
       'isCompleted': serializer.toJson<bool>(isCompleted),
       'createdAt': serializer.toJson<DateTime>(createdAt),
+      'checklistId': serializer.toJson<String?>(checklistId),
+      'sortOrder': serializer.toJson<int>(sortOrder),
     };
   }
 
@@ -5444,13 +5822,17 @@ class DayTodo extends DataClass implements Insertable<DayTodo> {
           String? title,
           DateTime? date,
           bool? isCompleted,
-          DateTime? createdAt}) =>
+          DateTime? createdAt,
+          Value<String?> checklistId = const Value.absent(),
+          int? sortOrder}) =>
       DayTodo(
         id: id ?? this.id,
         title: title ?? this.title,
         date: date ?? this.date,
         isCompleted: isCompleted ?? this.isCompleted,
         createdAt: createdAt ?? this.createdAt,
+        checklistId: checklistId.present ? checklistId.value : this.checklistId,
+        sortOrder: sortOrder ?? this.sortOrder,
       );
   DayTodo copyWithCompanion(DayTodosTableCompanion data) {
     return DayTodo(
@@ -5460,6 +5842,9 @@ class DayTodo extends DataClass implements Insertable<DayTodo> {
       isCompleted:
           data.isCompleted.present ? data.isCompleted.value : this.isCompleted,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      checklistId:
+          data.checklistId.present ? data.checklistId.value : this.checklistId,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
     );
   }
 
@@ -5470,13 +5855,16 @@ class DayTodo extends DataClass implements Insertable<DayTodo> {
           ..write('title: $title, ')
           ..write('date: $date, ')
           ..write('isCompleted: $isCompleted, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('checklistId: $checklistId, ')
+          ..write('sortOrder: $sortOrder')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, title, date, isCompleted, createdAt);
+  int get hashCode => Object.hash(
+      id, title, date, isCompleted, createdAt, checklistId, sortOrder);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -5485,7 +5873,9 @@ class DayTodo extends DataClass implements Insertable<DayTodo> {
           other.title == this.title &&
           other.date == this.date &&
           other.isCompleted == this.isCompleted &&
-          other.createdAt == this.createdAt);
+          other.createdAt == this.createdAt &&
+          other.checklistId == this.checklistId &&
+          other.sortOrder == this.sortOrder);
 }
 
 class DayTodosTableCompanion extends UpdateCompanion<DayTodo> {
@@ -5494,6 +5884,8 @@ class DayTodosTableCompanion extends UpdateCompanion<DayTodo> {
   final Value<DateTime> date;
   final Value<bool> isCompleted;
   final Value<DateTime> createdAt;
+  final Value<String?> checklistId;
+  final Value<int> sortOrder;
   final Value<int> rowid;
   const DayTodosTableCompanion({
     this.id = const Value.absent(),
@@ -5501,6 +5893,8 @@ class DayTodosTableCompanion extends UpdateCompanion<DayTodo> {
     this.date = const Value.absent(),
     this.isCompleted = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.checklistId = const Value.absent(),
+    this.sortOrder = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   DayTodosTableCompanion.insert({
@@ -5509,6 +5903,8 @@ class DayTodosTableCompanion extends UpdateCompanion<DayTodo> {
     required DateTime date,
     this.isCompleted = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.checklistId = const Value.absent(),
+    this.sortOrder = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         title = Value(title),
@@ -5519,6 +5915,8 @@ class DayTodosTableCompanion extends UpdateCompanion<DayTodo> {
     Expression<DateTime>? date,
     Expression<bool>? isCompleted,
     Expression<DateTime>? createdAt,
+    Expression<String>? checklistId,
+    Expression<int>? sortOrder,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -5527,6 +5925,8 @@ class DayTodosTableCompanion extends UpdateCompanion<DayTodo> {
       if (date != null) 'date': date,
       if (isCompleted != null) 'is_completed': isCompleted,
       if (createdAt != null) 'created_at': createdAt,
+      if (checklistId != null) 'checklist_id': checklistId,
+      if (sortOrder != null) 'sort_order': sortOrder,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -5537,6 +5937,8 @@ class DayTodosTableCompanion extends UpdateCompanion<DayTodo> {
       Value<DateTime>? date,
       Value<bool>? isCompleted,
       Value<DateTime>? createdAt,
+      Value<String?>? checklistId,
+      Value<int>? sortOrder,
       Value<int>? rowid}) {
     return DayTodosTableCompanion(
       id: id ?? this.id,
@@ -5544,6 +5946,8 @@ class DayTodosTableCompanion extends UpdateCompanion<DayTodo> {
       date: date ?? this.date,
       isCompleted: isCompleted ?? this.isCompleted,
       createdAt: createdAt ?? this.createdAt,
+      checklistId: checklistId ?? this.checklistId,
+      sortOrder: sortOrder ?? this.sortOrder,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -5566,6 +5970,12 @@ class DayTodosTableCompanion extends UpdateCompanion<DayTodo> {
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
+    if (checklistId.present) {
+      map['checklist_id'] = Variable<String>(checklistId.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -5580,6 +5990,8 @@ class DayTodosTableCompanion extends UpdateCompanion<DayTodo> {
           ..write('date: $date, ')
           ..write('isCompleted: $isCompleted, ')
           ..write('createdAt: $createdAt, ')
+          ..write('checklistId: $checklistId, ')
+          ..write('sortOrder: $sortOrder, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -5610,8 +6022,21 @@ class $ChecklistsTableTable extends ChecklistsTable
       type: DriftSqlType.dateTime,
       requiredDuringInsert: false,
       defaultValue: currentDateAndTime);
+  static const VerificationMeta _iconKeyMeta =
+      const VerificationMeta('iconKey');
   @override
-  List<GeneratedColumn> get $columns => [id, name, createdAt];
+  late final GeneratedColumn<String> iconKey = GeneratedColumn<String>(
+      'icon_key', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _typeMeta = const VerificationMeta('type');
+  @override
+  late final GeneratedColumn<String> type = GeneratedColumn<String>(
+      'type', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('my_lists'));
+  @override
+  List<GeneratedColumn> get $columns => [id, name, createdAt, iconKey, type];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -5637,6 +6062,14 @@ class $ChecklistsTableTable extends ChecklistsTable
       context.handle(_createdAtMeta,
           createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
     }
+    if (data.containsKey('icon_key')) {
+      context.handle(_iconKeyMeta,
+          iconKey.isAcceptableOrUnknown(data['icon_key']!, _iconKeyMeta));
+    }
+    if (data.containsKey('type')) {
+      context.handle(
+          _typeMeta, type.isAcceptableOrUnknown(data['type']!, _typeMeta));
+    }
     return context;
   }
 
@@ -5652,6 +6085,10 @@ class $ChecklistsTableTable extends ChecklistsTable
           .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      iconKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}icon_key']),
+      type: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}type'])!,
     );
   }
 
@@ -5665,13 +6102,24 @@ class Checklist extends DataClass implements Insertable<Checklist> {
   final String id;
   final String name;
   final DateTime createdAt;
-  const Checklist({required this.id, required this.name, required this.createdAt});
+  final String? iconKey;
+  final String type;
+  const Checklist(
+      {required this.id,
+      required this.name,
+      required this.createdAt,
+      this.iconKey,
+      required this.type});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['name'] = Variable<String>(name);
     map['created_at'] = Variable<DateTime>(createdAt);
+    if (!nullToAbsent || iconKey != null) {
+      map['icon_key'] = Variable<String>(iconKey);
+    }
+    map['type'] = Variable<String>(type);
     return map;
   }
 
@@ -5680,6 +6128,10 @@ class Checklist extends DataClass implements Insertable<Checklist> {
       id: Value(id),
       name: Value(name),
       createdAt: Value(createdAt),
+      iconKey: iconKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(iconKey),
+      type: Value(type),
     );
   }
 
@@ -5690,6 +6142,8 @@ class Checklist extends DataClass implements Insertable<Checklist> {
       id: serializer.fromJson<String>(json['id']),
       name: serializer.fromJson<String>(json['name']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      iconKey: serializer.fromJson<String?>(json['iconKey']),
+      type: serializer.fromJson<String>(json['type']),
     );
   }
   @override
@@ -5699,20 +6153,31 @@ class Checklist extends DataClass implements Insertable<Checklist> {
       'id': serializer.toJson<String>(id),
       'name': serializer.toJson<String>(name),
       'createdAt': serializer.toJson<DateTime>(createdAt),
+      'iconKey': serializer.toJson<String?>(iconKey),
+      'type': serializer.toJson<String>(type),
     };
   }
 
-  Checklist copyWith({String? id, String? name, DateTime? createdAt}) =>
+  Checklist copyWith(
+          {String? id,
+          String? name,
+          DateTime? createdAt,
+          Value<String?> iconKey = const Value.absent(),
+          String? type}) =>
       Checklist(
         id: id ?? this.id,
         name: name ?? this.name,
         createdAt: createdAt ?? this.createdAt,
+        iconKey: iconKey.present ? iconKey.value : this.iconKey,
+        type: type ?? this.type,
       );
   Checklist copyWithCompanion(ChecklistsTableCompanion data) {
     return Checklist(
       id: data.id.present ? data.id.value : this.id,
       name: data.name.present ? data.name.value : this.name,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      iconKey: data.iconKey.present ? data.iconKey.value : this.iconKey,
+      type: data.type.present ? data.type.value : this.type,
     );
   }
 
@@ -5721,37 +6186,47 @@ class Checklist extends DataClass implements Insertable<Checklist> {
     return (StringBuffer('Checklist(')
           ..write('id: $id, ')
           ..write('name: $name, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('iconKey: $iconKey, ')
+          ..write('type: $type')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, name, createdAt);
+  int get hashCode => Object.hash(id, name, createdAt, iconKey, type);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Checklist &&
           other.id == this.id &&
           other.name == this.name &&
-          other.createdAt == this.createdAt);
+          other.createdAt == this.createdAt &&
+          other.iconKey == this.iconKey &&
+          other.type == this.type);
 }
 
 class ChecklistsTableCompanion extends UpdateCompanion<Checklist> {
   final Value<String> id;
   final Value<String> name;
   final Value<DateTime> createdAt;
+  final Value<String?> iconKey;
+  final Value<String> type;
   final Value<int> rowid;
   const ChecklistsTableCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.iconKey = const Value.absent(),
+    this.type = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ChecklistsTableCompanion.insert({
     required String id,
     required String name,
     this.createdAt = const Value.absent(),
+    this.iconKey = const Value.absent(),
+    this.type = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         name = Value(name);
@@ -5759,12 +6234,16 @@ class ChecklistsTableCompanion extends UpdateCompanion<Checklist> {
     Expression<String>? id,
     Expression<String>? name,
     Expression<DateTime>? createdAt,
+    Expression<String>? iconKey,
+    Expression<String>? type,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
       if (createdAt != null) 'created_at': createdAt,
+      if (iconKey != null) 'icon_key': iconKey,
+      if (type != null) 'type': type,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -5773,11 +6252,15 @@ class ChecklistsTableCompanion extends UpdateCompanion<Checklist> {
       {Value<String>? id,
       Value<String>? name,
       Value<DateTime>? createdAt,
+      Value<String?>? iconKey,
+      Value<String>? type,
       Value<int>? rowid}) {
     return ChecklistsTableCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
       createdAt: createdAt ?? this.createdAt,
+      iconKey: iconKey ?? this.iconKey,
+      type: type ?? this.type,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -5785,10 +6268,24 @@ class ChecklistsTableCompanion extends UpdateCompanion<Checklist> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (id.present) map['id'] = Variable<String>(id.value);
-    if (name.present) map['name'] = Variable<String>(name.value);
-    if (createdAt.present) map['created_at'] = Variable<DateTime>(createdAt.value);
-    if (rowid.present) map['rowid'] = Variable<int>(rowid.value);
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (iconKey.present) {
+      map['icon_key'] = Variable<String>(iconKey.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(type.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
     return map;
   }
 
@@ -5798,6 +6295,8 @@ class ChecklistsTableCompanion extends UpdateCompanion<Checklist> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('createdAt: $createdAt, ')
+          ..write('iconKey: $iconKey, ')
+          ..write('type: $type, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -5833,8 +6332,8 @@ class $ChecklistItemsTableTable extends ChecklistItemsTable
       'is_checked', aliasedName, false,
       type: DriftSqlType.bool,
       requiredDuringInsert: false,
-      defaultConstraints: GeneratedColumn.constraintIsAlways(
-          'CHECK ("is_checked" IN (0, 1))'),
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_checked" IN (0, 1))'),
       defaultValue: const Constant(false));
   static const VerificationMeta _sortOrderMeta =
       const VerificationMeta('sortOrder');
@@ -5844,9 +6343,26 @@ class $ChecklistItemsTableTable extends ChecklistItemsTable
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(0));
+  static const VerificationMeta _priorityMeta =
+      const VerificationMeta('priority');
+  @override
+  late final GeneratedColumn<String> priority = GeneratedColumn<String>(
+      'priority', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+      'notes', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _dueDateMeta =
+      const VerificationMeta('dueDate');
+  @override
+  late final GeneratedColumn<DateTime> dueDate = GeneratedColumn<DateTime>(
+      'due_date', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns =>
-      [id, checklistId, title, isChecked, sortOrder];
+      [id, checklistId, title, isChecked, sortOrder, priority, notes, dueDate];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -5884,6 +6400,18 @@ class $ChecklistItemsTableTable extends ChecklistItemsTable
       context.handle(_sortOrderMeta,
           sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta));
     }
+    if (data.containsKey('priority')) {
+      context.handle(_priorityMeta,
+          priority.isAcceptableOrUnknown(data['priority']!, _priorityMeta));
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+          _notesMeta, notes.isAcceptableOrUnknown(data['notes']!, _notesMeta));
+    }
+    if (data.containsKey('due_date')) {
+      context.handle(_dueDateMeta,
+          dueDate.isAcceptableOrUnknown(data['due_date']!, _dueDateMeta));
+    }
     return context;
   }
 
@@ -5903,6 +6431,12 @@ class $ChecklistItemsTableTable extends ChecklistItemsTable
           .read(DriftSqlType.bool, data['${effectivePrefix}is_checked'])!,
       sortOrder: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}sort_order'])!,
+      priority: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}priority']),
+      notes: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}notes']),
+      dueDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}due_date']),
     );
   }
 
@@ -5918,12 +6452,18 @@ class ChecklistItem extends DataClass implements Insertable<ChecklistItem> {
   final String title;
   final bool isChecked;
   final int sortOrder;
+  final String? priority;
+  final String? notes;
+  final DateTime? dueDate;
   const ChecklistItem(
       {required this.id,
       required this.checklistId,
       required this.title,
       required this.isChecked,
-      required this.sortOrder});
+      required this.sortOrder,
+      this.priority,
+      this.notes,
+      this.dueDate});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -5932,6 +6472,15 @@ class ChecklistItem extends DataClass implements Insertable<ChecklistItem> {
     map['title'] = Variable<String>(title);
     map['is_checked'] = Variable<bool>(isChecked);
     map['sort_order'] = Variable<int>(sortOrder);
+    if (!nullToAbsent || priority != null) {
+      map['priority'] = Variable<String>(priority);
+    }
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    if (!nullToAbsent || dueDate != null) {
+      map['due_date'] = Variable<DateTime>(dueDate);
+    }
     return map;
   }
 
@@ -5942,6 +6491,14 @@ class ChecklistItem extends DataClass implements Insertable<ChecklistItem> {
       title: Value(title),
       isChecked: Value(isChecked),
       sortOrder: Value(sortOrder),
+      priority: priority == null && nullToAbsent
+          ? const Value.absent()
+          : Value(priority),
+      notes:
+          notes == null && nullToAbsent ? const Value.absent() : Value(notes),
+      dueDate: dueDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(dueDate),
     );
   }
 
@@ -5954,6 +6511,9 @@ class ChecklistItem extends DataClass implements Insertable<ChecklistItem> {
       title: serializer.fromJson<String>(json['title']),
       isChecked: serializer.fromJson<bool>(json['isChecked']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
+      priority: serializer.fromJson<String?>(json['priority']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      dueDate: serializer.fromJson<DateTime?>(json['dueDate']),
     );
   }
   @override
@@ -5965,6 +6525,9 @@ class ChecklistItem extends DataClass implements Insertable<ChecklistItem> {
       'title': serializer.toJson<String>(title),
       'isChecked': serializer.toJson<bool>(isChecked),
       'sortOrder': serializer.toJson<int>(sortOrder),
+      'priority': serializer.toJson<String?>(priority),
+      'notes': serializer.toJson<String?>(notes),
+      'dueDate': serializer.toJson<DateTime?>(dueDate),
     };
   }
 
@@ -5973,23 +6536,31 @@ class ChecklistItem extends DataClass implements Insertable<ChecklistItem> {
           String? checklistId,
           String? title,
           bool? isChecked,
-          int? sortOrder}) =>
+          int? sortOrder,
+          Value<String?> priority = const Value.absent(),
+          Value<String?> notes = const Value.absent(),
+          Value<DateTime?> dueDate = const Value.absent()}) =>
       ChecklistItem(
         id: id ?? this.id,
         checklistId: checklistId ?? this.checklistId,
         title: title ?? this.title,
         isChecked: isChecked ?? this.isChecked,
         sortOrder: sortOrder ?? this.sortOrder,
+        priority: priority.present ? priority.value : this.priority,
+        notes: notes.present ? notes.value : this.notes,
+        dueDate: dueDate.present ? dueDate.value : this.dueDate,
       );
   ChecklistItem copyWithCompanion(ChecklistItemsTableCompanion data) {
     return ChecklistItem(
       id: data.id.present ? data.id.value : this.id,
-      checklistId: data.checklistId.present
-          ? data.checklistId.value
-          : this.checklistId,
+      checklistId:
+          data.checklistId.present ? data.checklistId.value : this.checklistId,
       title: data.title.present ? data.title.value : this.title,
       isChecked: data.isChecked.present ? data.isChecked.value : this.isChecked,
       sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+      priority: data.priority.present ? data.priority.value : this.priority,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      dueDate: data.dueDate.present ? data.dueDate.value : this.dueDate,
     );
   }
 
@@ -6000,14 +6571,17 @@ class ChecklistItem extends DataClass implements Insertable<ChecklistItem> {
           ..write('checklistId: $checklistId, ')
           ..write('title: $title, ')
           ..write('isChecked: $isChecked, ')
-          ..write('sortOrder: $sortOrder')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('priority: $priority, ')
+          ..write('notes: $notes, ')
+          ..write('dueDate: $dueDate')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, checklistId, title, isChecked, sortOrder);
+  int get hashCode => Object.hash(
+      id, checklistId, title, isChecked, sortOrder, priority, notes, dueDate);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -6016,7 +6590,10 @@ class ChecklistItem extends DataClass implements Insertable<ChecklistItem> {
           other.checklistId == this.checklistId &&
           other.title == this.title &&
           other.isChecked == this.isChecked &&
-          other.sortOrder == this.sortOrder);
+          other.sortOrder == this.sortOrder &&
+          other.priority == this.priority &&
+          other.notes == this.notes &&
+          other.dueDate == this.dueDate);
 }
 
 class ChecklistItemsTableCompanion extends UpdateCompanion<ChecklistItem> {
@@ -6025,6 +6602,9 @@ class ChecklistItemsTableCompanion extends UpdateCompanion<ChecklistItem> {
   final Value<String> title;
   final Value<bool> isChecked;
   final Value<int> sortOrder;
+  final Value<String?> priority;
+  final Value<String?> notes;
+  final Value<DateTime?> dueDate;
   final Value<int> rowid;
   const ChecklistItemsTableCompanion({
     this.id = const Value.absent(),
@@ -6032,6 +6612,9 @@ class ChecklistItemsTableCompanion extends UpdateCompanion<ChecklistItem> {
     this.title = const Value.absent(),
     this.isChecked = const Value.absent(),
     this.sortOrder = const Value.absent(),
+    this.priority = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.dueDate = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ChecklistItemsTableCompanion.insert({
@@ -6040,6 +6623,9 @@ class ChecklistItemsTableCompanion extends UpdateCompanion<ChecklistItem> {
     required String title,
     this.isChecked = const Value.absent(),
     this.sortOrder = const Value.absent(),
+    this.priority = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.dueDate = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         checklistId = Value(checklistId),
@@ -6050,6 +6636,9 @@ class ChecklistItemsTableCompanion extends UpdateCompanion<ChecklistItem> {
     Expression<String>? title,
     Expression<bool>? isChecked,
     Expression<int>? sortOrder,
+    Expression<String>? priority,
+    Expression<String>? notes,
+    Expression<DateTime>? dueDate,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -6058,6 +6647,9 @@ class ChecklistItemsTableCompanion extends UpdateCompanion<ChecklistItem> {
       if (title != null) 'title': title,
       if (isChecked != null) 'is_checked': isChecked,
       if (sortOrder != null) 'sort_order': sortOrder,
+      if (priority != null) 'priority': priority,
+      if (notes != null) 'notes': notes,
+      if (dueDate != null) 'due_date': dueDate,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -6068,6 +6660,9 @@ class ChecklistItemsTableCompanion extends UpdateCompanion<ChecklistItem> {
       Value<String>? title,
       Value<bool>? isChecked,
       Value<int>? sortOrder,
+      Value<String?>? priority,
+      Value<String?>? notes,
+      Value<DateTime?>? dueDate,
       Value<int>? rowid}) {
     return ChecklistItemsTableCompanion(
       id: id ?? this.id,
@@ -6075,6 +6670,9 @@ class ChecklistItemsTableCompanion extends UpdateCompanion<ChecklistItem> {
       title: title ?? this.title,
       isChecked: isChecked ?? this.isChecked,
       sortOrder: sortOrder ?? this.sortOrder,
+      priority: priority ?? this.priority,
+      notes: notes ?? this.notes,
+      dueDate: dueDate ?? this.dueDate,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -6082,12 +6680,33 @@ class ChecklistItemsTableCompanion extends UpdateCompanion<ChecklistItem> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (id.present) map['id'] = Variable<String>(id.value);
-    if (checklistId.present) map['checklist_id'] = Variable<String>(checklistId.value);
-    if (title.present) map['title'] = Variable<String>(title.value);
-    if (isChecked.present) map['is_checked'] = Variable<bool>(isChecked.value);
-    if (sortOrder.present) map['sort_order'] = Variable<int>(sortOrder.value);
-    if (rowid.present) map['rowid'] = Variable<int>(rowid.value);
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (checklistId.present) {
+      map['checklist_id'] = Variable<String>(checklistId.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (isChecked.present) {
+      map['is_checked'] = Variable<bool>(isChecked.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    if (priority.present) {
+      map['priority'] = Variable<String>(priority.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (dueDate.present) {
+      map['due_date'] = Variable<DateTime>(dueDate.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
     return map;
   }
 
@@ -6099,6 +6718,9 @@ class ChecklistItemsTableCompanion extends UpdateCompanion<ChecklistItem> {
           ..write('title: $title, ')
           ..write('isChecked: $isChecked, ')
           ..write('sortOrder: $sortOrder, ')
+          ..write('priority: $priority, ')
+          ..write('notes: $notes, ')
+          ..write('dueDate: $dueDate, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -6151,7 +6773,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         activitySubtasksTable,
         dayTodosTable,
         checklistsTable,
-        checklistItemsTable,
+        checklistItemsTable
       ];
 }
 
@@ -7976,6 +8598,13 @@ typedef $$PlannerActivitiesTableTableCreateCompanionBuilder
   Value<String?> description,
   Value<int?> reminderMinutes,
   Value<String> repeatType,
+  Value<String?> recurrenceParentId,
+  Value<DateTime?> recurrenceExceptionDate,
+  Value<bool> isDeleted,
+  Value<int> repeatInterval,
+  Value<String?> repeatDaysOfWeek,
+  Value<DateTime?> repeatEndsOn,
+  Value<int?> repeatEndsAfter,
   Value<DateTime> createdAt,
   Value<int> rowid,
 });
@@ -7991,6 +8620,13 @@ typedef $$PlannerActivitiesTableTableUpdateCompanionBuilder
   Value<String?> description,
   Value<int?> reminderMinutes,
   Value<String> repeatType,
+  Value<String?> recurrenceParentId,
+  Value<DateTime?> recurrenceExceptionDate,
+  Value<bool> isDeleted,
+  Value<int> repeatInterval,
+  Value<String?> repeatDaysOfWeek,
+  Value<DateTime?> repeatEndsOn,
+  Value<int?> repeatEndsAfter,
   Value<DateTime> createdAt,
   Value<int> rowid,
 });
@@ -8034,6 +8670,32 @@ class $$PlannerActivitiesTableTableFilterComposer
 
   ColumnFilters<String> get repeatType => $composableBuilder(
       column: $table.repeatType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get recurrenceParentId => $composableBuilder(
+      column: $table.recurrenceParentId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get recurrenceExceptionDate => $composableBuilder(
+      column: $table.recurrenceExceptionDate,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isDeleted => $composableBuilder(
+      column: $table.isDeleted, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get repeatInterval => $composableBuilder(
+      column: $table.repeatInterval,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get repeatDaysOfWeek => $composableBuilder(
+      column: $table.repeatDaysOfWeek,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get repeatEndsOn => $composableBuilder(
+      column: $table.repeatEndsOn, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get repeatEndsAfter => $composableBuilder(
+      column: $table.repeatEndsAfter,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnFilters(column));
@@ -8079,6 +8741,33 @@ class $$PlannerActivitiesTableTableOrderingComposer
   ColumnOrderings<String> get repeatType => $composableBuilder(
       column: $table.repeatType, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get recurrenceParentId => $composableBuilder(
+      column: $table.recurrenceParentId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get recurrenceExceptionDate => $composableBuilder(
+      column: $table.recurrenceExceptionDate,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isDeleted => $composableBuilder(
+      column: $table.isDeleted, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get repeatInterval => $composableBuilder(
+      column: $table.repeatInterval,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get repeatDaysOfWeek => $composableBuilder(
+      column: $table.repeatDaysOfWeek,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get repeatEndsOn => $composableBuilder(
+      column: $table.repeatEndsOn,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get repeatEndsAfter => $composableBuilder(
+      column: $table.repeatEndsAfter,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 }
@@ -8121,6 +8810,27 @@ class $$PlannerActivitiesTableTableAnnotationComposer
 
   GeneratedColumn<String> get repeatType => $composableBuilder(
       column: $table.repeatType, builder: (column) => column);
+
+  GeneratedColumn<String> get recurrenceParentId => $composableBuilder(
+      column: $table.recurrenceParentId, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get recurrenceExceptionDate => $composableBuilder(
+      column: $table.recurrenceExceptionDate, builder: (column) => column);
+
+  GeneratedColumn<bool> get isDeleted =>
+      $composableBuilder(column: $table.isDeleted, builder: (column) => column);
+
+  GeneratedColumn<int> get repeatInterval => $composableBuilder(
+      column: $table.repeatInterval, builder: (column) => column);
+
+  GeneratedColumn<String> get repeatDaysOfWeek => $composableBuilder(
+      column: $table.repeatDaysOfWeek, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get repeatEndsOn => $composableBuilder(
+      column: $table.repeatEndsOn, builder: (column) => column);
+
+  GeneratedColumn<int> get repeatEndsAfter => $composableBuilder(
+      column: $table.repeatEndsAfter, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -8167,6 +8877,13 @@ class $$PlannerActivitiesTableTableTableManager extends RootTableManager<
             Value<String?> description = const Value.absent(),
             Value<int?> reminderMinutes = const Value.absent(),
             Value<String> repeatType = const Value.absent(),
+            Value<String?> recurrenceParentId = const Value.absent(),
+            Value<DateTime?> recurrenceExceptionDate = const Value.absent(),
+            Value<bool> isDeleted = const Value.absent(),
+            Value<int> repeatInterval = const Value.absent(),
+            Value<String?> repeatDaysOfWeek = const Value.absent(),
+            Value<DateTime?> repeatEndsOn = const Value.absent(),
+            Value<int?> repeatEndsAfter = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
@@ -8181,6 +8898,13 @@ class $$PlannerActivitiesTableTableTableManager extends RootTableManager<
             description: description,
             reminderMinutes: reminderMinutes,
             repeatType: repeatType,
+            recurrenceParentId: recurrenceParentId,
+            recurrenceExceptionDate: recurrenceExceptionDate,
+            isDeleted: isDeleted,
+            repeatInterval: repeatInterval,
+            repeatDaysOfWeek: repeatDaysOfWeek,
+            repeatEndsOn: repeatEndsOn,
+            repeatEndsAfter: repeatEndsAfter,
             createdAt: createdAt,
             rowid: rowid,
           ),
@@ -8195,6 +8919,13 @@ class $$PlannerActivitiesTableTableTableManager extends RootTableManager<
             Value<String?> description = const Value.absent(),
             Value<int?> reminderMinutes = const Value.absent(),
             Value<String> repeatType = const Value.absent(),
+            Value<String?> recurrenceParentId = const Value.absent(),
+            Value<DateTime?> recurrenceExceptionDate = const Value.absent(),
+            Value<bool> isDeleted = const Value.absent(),
+            Value<int> repeatInterval = const Value.absent(),
+            Value<String?> repeatDaysOfWeek = const Value.absent(),
+            Value<DateTime?> repeatEndsOn = const Value.absent(),
+            Value<int?> repeatEndsAfter = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
@@ -8209,6 +8940,13 @@ class $$PlannerActivitiesTableTableTableManager extends RootTableManager<
             description: description,
             reminderMinutes: reminderMinutes,
             repeatType: repeatType,
+            recurrenceParentId: recurrenceParentId,
+            recurrenceExceptionDate: recurrenceExceptionDate,
+            isDeleted: isDeleted,
+            repeatInterval: repeatInterval,
+            repeatDaysOfWeek: repeatDaysOfWeek,
+            repeatEndsOn: repeatEndsOn,
+            repeatEndsAfter: repeatEndsAfter,
             createdAt: createdAt,
             rowid: rowid,
           ),
@@ -8844,7 +9582,6 @@ typedef $$RoutineBlocksTableTableProcessedTableManager = ProcessedTableManager<
     ),
     RoutineBlock,
     PrefetchHooks Function()>;
-
 typedef $$ActivitySubtasksTableTableCreateCompanionBuilder
     = ActivitySubtasksTableCompanion Function({
   required String id,
@@ -8926,14 +9663,14 @@ class $$ActivitySubtasksTableTableAnnotationComposer
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get activityId =>
-      $composableBuilder(column: $table.activityId, builder: (column) => column);
+  GeneratedColumn<String> get activityId => $composableBuilder(
+      column: $table.activityId, builder: (column) => column);
 
   GeneratedColumn<String> get title =>
       $composableBuilder(column: $table.title, builder: (column) => column);
 
-  GeneratedColumn<bool> get isCompleted =>
-      $composableBuilder(column: $table.isCompleted, builder: (column) => column);
+  GeneratedColumn<bool> get isCompleted => $composableBuilder(
+      column: $table.isCompleted, builder: (column) => column);
 
   GeneratedColumn<int> get sortOrder =>
       $composableBuilder(column: $table.sortOrder, builder: (column) => column);
@@ -8950,7 +9687,8 @@ class $$ActivitySubtasksTableTableTableManager extends RootTableManager<
     $$ActivitySubtasksTableTableUpdateCompanionBuilder,
     (
       ActivitySubtask,
-      BaseReferences<_$AppDatabase, $ActivitySubtasksTableTable, ActivitySubtask>
+      BaseReferences<_$AppDatabase, $ActivitySubtasksTableTable,
+          ActivitySubtask>
     ),
     ActivitySubtask,
     PrefetchHooks Function()> {
@@ -9024,7 +9762,6 @@ typedef $$ActivitySubtasksTableTableProcessedTableManager
         ),
         ActivitySubtask,
         PrefetchHooks Function()>;
-
 typedef $$DayTodosTableTableCreateCompanionBuilder = DayTodosTableCompanion
     Function({
   required String id,
@@ -9032,6 +9769,8 @@ typedef $$DayTodosTableTableCreateCompanionBuilder = DayTodosTableCompanion
   required DateTime date,
   Value<bool> isCompleted,
   Value<DateTime> createdAt,
+  Value<String?> checklistId,
+  Value<int> sortOrder,
   Value<int> rowid,
 });
 typedef $$DayTodosTableTableUpdateCompanionBuilder = DayTodosTableCompanion
@@ -9041,6 +9780,8 @@ typedef $$DayTodosTableTableUpdateCompanionBuilder = DayTodosTableCompanion
   Value<DateTime> date,
   Value<bool> isCompleted,
   Value<DateTime> createdAt,
+  Value<String?> checklistId,
+  Value<int> sortOrder,
   Value<int> rowid,
 });
 
@@ -9067,6 +9808,12 @@ class $$DayTodosTableTableFilterComposer
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get checklistId => $composableBuilder(
+      column: $table.checklistId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnFilters(column));
 }
 
 class $$DayTodosTableTableOrderingComposer
@@ -9092,6 +9839,12 @@ class $$DayTodosTableTableOrderingComposer
 
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get checklistId => $composableBuilder(
+      column: $table.checklistId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnOrderings(column));
 }
 
 class $$DayTodosTableTableAnnotationComposer
@@ -9112,11 +9865,17 @@ class $$DayTodosTableTableAnnotationComposer
   GeneratedColumn<DateTime> get date =>
       $composableBuilder(column: $table.date, builder: (column) => column);
 
-  GeneratedColumn<bool> get isCompleted =>
-      $composableBuilder(column: $table.isCompleted, builder: (column) => column);
+  GeneratedColumn<bool> get isCompleted => $composableBuilder(
+      column: $table.isCompleted, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<String> get checklistId => $composableBuilder(
+      column: $table.checklistId, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
 }
 
 class $$DayTodosTableTableTableManager extends RootTableManager<
@@ -9128,14 +9887,10 @@ class $$DayTodosTableTableTableManager extends RootTableManager<
     $$DayTodosTableTableAnnotationComposer,
     $$DayTodosTableTableCreateCompanionBuilder,
     $$DayTodosTableTableUpdateCompanionBuilder,
-    (
-      DayTodo,
-      BaseReferences<_$AppDatabase, $DayTodosTableTable, DayTodo>
-    ),
+    (DayTodo, BaseReferences<_$AppDatabase, $DayTodosTableTable, DayTodo>),
     DayTodo,
     PrefetchHooks Function()> {
-  $$DayTodosTableTableTableManager(
-      _$AppDatabase db, $DayTodosTableTable table)
+  $$DayTodosTableTableTableManager(_$AppDatabase db, $DayTodosTableTable table)
       : super(TableManagerState(
           db: db,
           table: table,
@@ -9151,6 +9906,8 @@ class $$DayTodosTableTableTableManager extends RootTableManager<
             Value<DateTime> date = const Value.absent(),
             Value<bool> isCompleted = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
+            Value<String?> checklistId = const Value.absent(),
+            Value<int> sortOrder = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               DayTodosTableCompanion(
@@ -9159,6 +9916,8 @@ class $$DayTodosTableTableTableManager extends RootTableManager<
             date: date,
             isCompleted: isCompleted,
             createdAt: createdAt,
+            checklistId: checklistId,
+            sortOrder: sortOrder,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -9167,6 +9926,8 @@ class $$DayTodosTableTableTableManager extends RootTableManager<
             required DateTime date,
             Value<bool> isCompleted = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
+            Value<String?> checklistId = const Value.absent(),
+            Value<int> sortOrder = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               DayTodosTableCompanion.insert(
@@ -9175,6 +9936,8 @@ class $$DayTodosTableTableTableManager extends RootTableManager<
             date: date,
             isCompleted: isCompleted,
             createdAt: createdAt,
+            checklistId: checklistId,
+            sortOrder: sortOrder,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
@@ -9193,11 +9956,403 @@ typedef $$DayTodosTableTableProcessedTableManager = ProcessedTableManager<
     $$DayTodosTableTableAnnotationComposer,
     $$DayTodosTableTableCreateCompanionBuilder,
     $$DayTodosTableTableUpdateCompanionBuilder,
-    (
-      DayTodo,
-      BaseReferences<_$AppDatabase, $DayTodosTableTable, DayTodo>
-    ),
+    (DayTodo, BaseReferences<_$AppDatabase, $DayTodosTableTable, DayTodo>),
     DayTodo,
+    PrefetchHooks Function()>;
+typedef $$ChecklistsTableTableCreateCompanionBuilder = ChecklistsTableCompanion
+    Function({
+  required String id,
+  required String name,
+  Value<DateTime> createdAt,
+  Value<String?> iconKey,
+  Value<String> type,
+  Value<int> rowid,
+});
+typedef $$ChecklistsTableTableUpdateCompanionBuilder = ChecklistsTableCompanion
+    Function({
+  Value<String> id,
+  Value<String> name,
+  Value<DateTime> createdAt,
+  Value<String?> iconKey,
+  Value<String> type,
+  Value<int> rowid,
+});
+
+class $$ChecklistsTableTableFilterComposer
+    extends Composer<_$AppDatabase, $ChecklistsTableTable> {
+  $$ChecklistsTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get iconKey => $composableBuilder(
+      column: $table.iconKey, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get type => $composableBuilder(
+      column: $table.type, builder: (column) => ColumnFilters(column));
+}
+
+class $$ChecklistsTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $ChecklistsTableTable> {
+  $$ChecklistsTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get iconKey => $composableBuilder(
+      column: $table.iconKey, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get type => $composableBuilder(
+      column: $table.type, builder: (column) => ColumnOrderings(column));
+}
+
+class $$ChecklistsTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ChecklistsTableTable> {
+  $$ChecklistsTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<String> get iconKey =>
+      $composableBuilder(column: $table.iconKey, builder: (column) => column);
+
+  GeneratedColumn<String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+}
+
+class $$ChecklistsTableTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $ChecklistsTableTable,
+    Checklist,
+    $$ChecklistsTableTableFilterComposer,
+    $$ChecklistsTableTableOrderingComposer,
+    $$ChecklistsTableTableAnnotationComposer,
+    $$ChecklistsTableTableCreateCompanionBuilder,
+    $$ChecklistsTableTableUpdateCompanionBuilder,
+    (
+      Checklist,
+      BaseReferences<_$AppDatabase, $ChecklistsTableTable, Checklist>
+    ),
+    Checklist,
+    PrefetchHooks Function()> {
+  $$ChecklistsTableTableTableManager(
+      _$AppDatabase db, $ChecklistsTableTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ChecklistsTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ChecklistsTableTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ChecklistsTableTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<String?> iconKey = const Value.absent(),
+            Value<String> type = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ChecklistsTableCompanion(
+            id: id,
+            name: name,
+            createdAt: createdAt,
+            iconKey: iconKey,
+            type: type,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String name,
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<String?> iconKey = const Value.absent(),
+            Value<String> type = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ChecklistsTableCompanion.insert(
+            id: id,
+            name: name,
+            createdAt: createdAt,
+            iconKey: iconKey,
+            type: type,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$ChecklistsTableTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $ChecklistsTableTable,
+    Checklist,
+    $$ChecklistsTableTableFilterComposer,
+    $$ChecklistsTableTableOrderingComposer,
+    $$ChecklistsTableTableAnnotationComposer,
+    $$ChecklistsTableTableCreateCompanionBuilder,
+    $$ChecklistsTableTableUpdateCompanionBuilder,
+    (
+      Checklist,
+      BaseReferences<_$AppDatabase, $ChecklistsTableTable, Checklist>
+    ),
+    Checklist,
+    PrefetchHooks Function()>;
+typedef $$ChecklistItemsTableTableCreateCompanionBuilder
+    = ChecklistItemsTableCompanion Function({
+  required String id,
+  required String checklistId,
+  required String title,
+  Value<bool> isChecked,
+  Value<int> sortOrder,
+  Value<String?> priority,
+  Value<String?> notes,
+  Value<DateTime?> dueDate,
+  Value<int> rowid,
+});
+typedef $$ChecklistItemsTableTableUpdateCompanionBuilder
+    = ChecklistItemsTableCompanion Function({
+  Value<String> id,
+  Value<String> checklistId,
+  Value<String> title,
+  Value<bool> isChecked,
+  Value<int> sortOrder,
+  Value<String?> priority,
+  Value<String?> notes,
+  Value<DateTime?> dueDate,
+  Value<int> rowid,
+});
+
+class $$ChecklistItemsTableTableFilterComposer
+    extends Composer<_$AppDatabase, $ChecklistItemsTableTable> {
+  $$ChecklistItemsTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get checklistId => $composableBuilder(
+      column: $table.checklistId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isChecked => $composableBuilder(
+      column: $table.isChecked, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get priority => $composableBuilder(
+      column: $table.priority, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get dueDate => $composableBuilder(
+      column: $table.dueDate, builder: (column) => ColumnFilters(column));
+}
+
+class $$ChecklistItemsTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $ChecklistItemsTableTable> {
+  $$ChecklistItemsTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get checklistId => $composableBuilder(
+      column: $table.checklistId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isChecked => $composableBuilder(
+      column: $table.isChecked, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get priority => $composableBuilder(
+      column: $table.priority, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get dueDate => $composableBuilder(
+      column: $table.dueDate, builder: (column) => ColumnOrderings(column));
+}
+
+class $$ChecklistItemsTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ChecklistItemsTableTable> {
+  $$ChecklistItemsTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get checklistId => $composableBuilder(
+      column: $table.checklistId, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<bool> get isChecked =>
+      $composableBuilder(column: $table.isChecked, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  GeneratedColumn<String> get priority =>
+      $composableBuilder(column: $table.priority, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get dueDate =>
+      $composableBuilder(column: $table.dueDate, builder: (column) => column);
+}
+
+class $$ChecklistItemsTableTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $ChecklistItemsTableTable,
+    ChecklistItem,
+    $$ChecklistItemsTableTableFilterComposer,
+    $$ChecklistItemsTableTableOrderingComposer,
+    $$ChecklistItemsTableTableAnnotationComposer,
+    $$ChecklistItemsTableTableCreateCompanionBuilder,
+    $$ChecklistItemsTableTableUpdateCompanionBuilder,
+    (
+      ChecklistItem,
+      BaseReferences<_$AppDatabase, $ChecklistItemsTableTable, ChecklistItem>
+    ),
+    ChecklistItem,
+    PrefetchHooks Function()> {
+  $$ChecklistItemsTableTableTableManager(
+      _$AppDatabase db, $ChecklistItemsTableTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ChecklistItemsTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ChecklistItemsTableTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ChecklistItemsTableTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> checklistId = const Value.absent(),
+            Value<String> title = const Value.absent(),
+            Value<bool> isChecked = const Value.absent(),
+            Value<int> sortOrder = const Value.absent(),
+            Value<String?> priority = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+            Value<DateTime?> dueDate = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ChecklistItemsTableCompanion(
+            id: id,
+            checklistId: checklistId,
+            title: title,
+            isChecked: isChecked,
+            sortOrder: sortOrder,
+            priority: priority,
+            notes: notes,
+            dueDate: dueDate,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String checklistId,
+            required String title,
+            Value<bool> isChecked = const Value.absent(),
+            Value<int> sortOrder = const Value.absent(),
+            Value<String?> priority = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+            Value<DateTime?> dueDate = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ChecklistItemsTableCompanion.insert(
+            id: id,
+            checklistId: checklistId,
+            title: title,
+            isChecked: isChecked,
+            sortOrder: sortOrder,
+            priority: priority,
+            notes: notes,
+            dueDate: dueDate,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$ChecklistItemsTableTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $ChecklistItemsTableTable,
+    ChecklistItem,
+    $$ChecklistItemsTableTableFilterComposer,
+    $$ChecklistItemsTableTableOrderingComposer,
+    $$ChecklistItemsTableTableAnnotationComposer,
+    $$ChecklistItemsTableTableCreateCompanionBuilder,
+    $$ChecklistItemsTableTableUpdateCompanionBuilder,
+    (
+      ChecklistItem,
+      BaseReferences<_$AppDatabase, $ChecklistItemsTableTable, ChecklistItem>
+    ),
+    ChecklistItem,
     PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
@@ -9228,8 +10383,11 @@ class $AppDatabaseManager {
   $$RoutineBlocksTableTableTableManager get routineBlocksTable =>
       $$RoutineBlocksTableTableTableManager(_db, _db.routineBlocksTable);
   $$ActivitySubtasksTableTableTableManager get activitySubtasksTable =>
-      $$ActivitySubtasksTableTableTableManager(
-          _db, _db.activitySubtasksTable);
+      $$ActivitySubtasksTableTableTableManager(_db, _db.activitySubtasksTable);
   $$DayTodosTableTableTableManager get dayTodosTable =>
       $$DayTodosTableTableTableManager(_db, _db.dayTodosTable);
+  $$ChecklistsTableTableTableManager get checklistsTable =>
+      $$ChecklistsTableTableTableManager(_db, _db.checklistsTable);
+  $$ChecklistItemsTableTableTableManager get checklistItemsTable =>
+      $$ChecklistItemsTableTableTableManager(_db, _db.checklistItemsTable);
 }

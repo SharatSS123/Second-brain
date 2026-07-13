@@ -13,6 +13,7 @@ const _morePaths = [
   '/knowledge',
   '/books',
   '/planner',
+  '/lists',
 ];
 
 class MainScaffold extends StatelessWidget {
@@ -48,6 +49,9 @@ class MainScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final currentIndex = _currentIndex(context);
+    final location = GoRouterState.of(context).uri.path;
+    final showBanner = location != '/day' && location != '/dashboard';
+
     return Scaffold(
       key: mainScaffoldKey,
       backgroundColor: AppColors.bg,
@@ -56,7 +60,7 @@ class MainScaffold extends StatelessWidget {
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const LiveActivityBanner(),
+          if (showBanner) const LiveActivityBanner(),
           Container(
             decoration: const BoxDecoration(
               color: AppColors.surface,
@@ -147,12 +151,19 @@ class _MoreSheet extends StatelessWidget {
       color: AppColors.orange,
       path: '/knowledge',
     ),
+    _MoreItem(
+      icon: Icons.format_list_bulleted_rounded,
+      label: 'Lists',
+      color: AppColors.teal,
+      path: '/lists',
+    ),
   ];
 
   @override
   Widget build(BuildContext context) {
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 14, 20, 32),
+      padding: EdgeInsets.fromLTRB(20, 14, 20, 48 + bottomPadding),
       decoration: const BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -182,9 +193,10 @@ class _MoreSheet extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
-          // Feature grid — 5 items, 3 + 2 layout using Row/Wrap
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          // Feature grid — Wrap with 4 per row
+          Wrap(
+            spacing: 16,
+            runSpacing: 16,
             children: _items
                 .map((item) => _MoreTile(item: item, onTap: onTap))
                 .toList(),
@@ -203,10 +215,14 @@ class _MoreTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    // 20 padding left/right (40) and 3 gaps of 16 (48) between 4 items
+    final itemWidth = (screenWidth - 40 - 48) / 4;
+
     return GestureDetector(
       onTap: () => onTap(item.path),
       child: SizedBox(
-        width: (MediaQuery.of(context).size.width - 40 - 48) / 5,
+        width: itemWidth,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

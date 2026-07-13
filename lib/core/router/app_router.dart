@@ -16,6 +16,8 @@ import '../../features/entertainment/presentation/games_screen.dart';
 import '../../features/knowledge/presentation/knowledge_screen.dart';
 import '../../features/templates/presentation/templates_screen.dart';
 import '../../features/books/presentation/books_screen.dart';
+import '../../features/checklists/presentation/checklists_screen.dart';
+import '../../features/checklists/presentation/checklist_detail_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -32,8 +34,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: '/day',
-            pageBuilder: (context, state) =>
-                const NoTransitionPage(child: DayScreen()),
+            pageBuilder: (context, state) {
+              final expandTodo = state.uri.queryParameters['expand_todo'] == 'true';
+              return NoTransitionPage(
+                child: DayScreen(expandTodo: expandTodo),
+              );
+            },
           ),
           GoRoute(
             path: '/notes',
@@ -71,6 +77,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             pageBuilder: (context, state) =>
                 const NoTransitionPage(child: BooksScreen()),
           ),
+          GoRoute(
+            path: '/lists',
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: ChecklistsScreen()),
+          ),
         ],
       ),
 
@@ -94,6 +105,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/entertainment/games',
         builder: (context, state) => const GamesScreen(),
+      ),
+      GoRoute(
+        path: '/lists/:id',
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          final name = state.uri.queryParameters['name'] ?? 'Checklist';
+          return ChecklistDetailScreen(checklistId: id, checklistName: name);
+        },
       ),
     ],
   );

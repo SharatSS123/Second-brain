@@ -35,7 +35,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 11;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -62,6 +62,28 @@ class AppDatabase extends _$AppDatabase {
           if (from < 7) {
             await m.createTable(checklistsTable);
             await m.createTable(checklistItemsTable);
+          }
+          if (from < 8) {
+            await m.addColumn(dayTodosTable, dayTodosTable.checklistId);
+          }
+          if (from < 9) {
+            await m.addColumn(checklistsTable, checklistsTable.iconKey);
+            await m.addColumn(checklistsTable, checklistsTable.type);
+            await m.addColumn(checklistItemsTable, checklistItemsTable.priority);
+            await m.addColumn(checklistItemsTable, checklistItemsTable.notes);
+            await m.addColumn(checklistItemsTable, checklistItemsTable.dueDate);
+          }
+          if (from < 10) {
+            await m.addColumn(dayTodosTable, dayTodosTable.sortOrder);
+          }
+          if (from < 11) {
+            await m.addColumn(plannerActivitiesTable, plannerActivitiesTable.recurrenceParentId);
+            await m.addColumn(plannerActivitiesTable, plannerActivitiesTable.recurrenceExceptionDate);
+            await m.addColumn(plannerActivitiesTable, plannerActivitiesTable.isDeleted);
+            await m.addColumn(plannerActivitiesTable, plannerActivitiesTable.repeatInterval);
+            await m.addColumn(plannerActivitiesTable, plannerActivitiesTable.repeatDaysOfWeek);
+            await m.addColumn(plannerActivitiesTable, plannerActivitiesTable.repeatEndsOn);
+            await m.addColumn(plannerActivitiesTable, plannerActivitiesTable.repeatEndsAfter);
           }
         },
       );

@@ -435,6 +435,11 @@ class _AddActivitySheetState extends State<_AddActivitySheet> {
   late TimeOfDay _end;
   String _category = 'Work';
   bool _saving = false;
+  String _repeatType = 'none';
+  int _repeatInterval = 1;
+  String? _repeatDaysOfWeek;
+  DateTime? _repeatEndsOn;
+  int? _repeatEndsAfter;
 
   @override
   void initState() {
@@ -464,6 +469,11 @@ class _AddActivitySheetState extends State<_AddActivitySheet> {
           description: _descCtrl.text.trim().isEmpty
               ? null
               : _descCtrl.text.trim(),
+          repeatType: _repeatType,
+          repeatInterval: _repeatInterval,
+          repeatDaysOfWeek: _repeatDaysOfWeek,
+          repeatEndsOn: _repeatEndsOn,
+          repeatEndsAfter: _repeatEndsAfter,
         );
     if (mounted) Navigator.pop(context);
   }
@@ -525,6 +535,29 @@ class _AddActivitySheetState extends State<_AddActivitySheet> {
             ],
           ),
           const SizedBox(height: 12),
+          GestureDetector(
+            onTap: _selectRepeat,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+              decoration: BoxDecoration(
+                color: AppColors.card,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.repeat_rounded, color: AppColors.textMuted, size: 18),
+                  const SizedBox(width: 8),
+                  const Text('Repeat', style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+                  const Spacer(),
+                  Text(
+                    _repeatLabel(_repeatType),
+                    style: const TextStyle(color: AppColors.primary, fontSize: 14, fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
           DropdownButtonFormField<String>(
             value: _category,
             dropdownColor: AppColors.card,
@@ -566,6 +599,91 @@ class _AddActivitySheetState extends State<_AddActivitySheet> {
           ),
         ],
       ),
+    );
+  }
+
+  String _repeatLabel(String type) => switch (type) {
+        'daily' => 'Daily',
+        'weekdays' => 'Weekdays',
+        'weekly' => 'Weekly',
+        'monthly' => 'Monthly',
+        'custom' => 'Custom',
+        _ => 'Never',
+      };
+
+  void _selectRepeat() async {
+    final selected = await showModalBottomSheet<String>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
+        decoration: const BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.border,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text('Repeat pattern',
+                style: TextStyle(color: AppColors.textPrimary, fontSize: 18, fontWeight: FontWeight.w700)),
+            const SizedBox(height: 16),
+            ...['none', 'daily', 'weekdays', 'weekly', 'monthly', 'custom'].map((type) {
+              return ListTile(
+                title: Text(_repeatLabel(type), style: const TextStyle(color: AppColors.textPrimary)),
+                trailing: _repeatType == type ? const Icon(Icons.check_rounded, color: AppColors.primary) : null,
+                onTap: () => Navigator.pop(ctx, type),
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+
+    if (selected != null) {
+      if (selected == 'custom') {
+        _showCustomRepeatSheet();
+      } else {
+        setState(() {
+          _repeatType = selected;
+        });
+      }
+    }
+  }
+
+  void _showCustomRepeatSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return CustomRepeatSheet(
+          initialInterval: _repeatInterval,
+          initialDaysOfWeek: _repeatDaysOfWeek,
+          initialEndsOn: _repeatEndsOn,
+          initialEndsAfter: _repeatEndsAfter,
+          onSave: (interval, days, endsOn, endsAfter) {
+            setState(() {
+              _repeatType = 'custom';
+              _repeatInterval = interval;
+              _repeatDaysOfWeek = days;
+              _repeatEndsOn = endsOn;
+              _repeatEndsAfter = endsAfter;
+            });
+          },
+        );
+      },
     );
   }
 
@@ -630,6 +748,244 @@ class _TimePicker extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class CustomRepeatSheet extends StatefulWidget {
+  const CustomRepeatSheet({
+    super.key,
+    required this.initialInterval,
+    required this.initialDaysOfWeek,
+    required this.initialEndsOn,
+    required this.initialEndsAfter,
+    required this.onSave,
+  });
+
+  final int initialInterval;
+  final String? initialDaysOfWeek;
+  final DateTime? initialEndsOn;
+  final int? initialEndsAfter;
+  final void Function(int interval, String? days, DateTime? endsOn, int? endsAfter) onSave;
+
+  @override
+  State<CustomRepeatSheet> createState() => _CustomRepeatSheetState();
+}
+
+class _CustomRepeatSheetState extends State<CustomRepeatSheet> {
+  late int _interval;
+  List<int> _selectedDays = [];
+  String _endsType = 'never'; // 'never', 'date', 'after'
+  DateTime? _endsOn;
+  int _endsAfter = 10;
+  final _intervalCtrl = TextEditingController();
+  final _afterCtrl = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _interval = widget.initialInterval;
+    _intervalCtrl.text = _interval.toString();
+    if (widget.initialDaysOfWeek != null && widget.initialDaysOfWeek!.isNotEmpty) {
+      _selectedDays = widget.initialDaysOfWeek!.split(',').map(int.parse).toList();
+    }
+    _endsOn = widget.initialEndsOn;
+    if (widget.initialEndsAfter != null) {
+      _endsAfter = widget.initialEndsAfter!;
+      _endsType = 'after';
+    } else if (widget.initialEndsOn != null) {
+      _endsType = 'date';
+    }
+    _afterCtrl.text = _endsAfter.toString();
+  }
+
+  @override
+  void dispose() {
+    _intervalCtrl.dispose();
+    _afterCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bottom = MediaQuery.of(context).viewInsets.bottom;
+    return Container(
+      padding: EdgeInsets.fromLTRB(24, 20, 24, 24 + bottom),
+      decoration: const BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: Container(
+              width: 36,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.border,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          const Text('Custom Repeat',
+              style: TextStyle(color: AppColors.textPrimary, fontSize: 18, fontWeight: FontWeight.w700)),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              const Text('Repeat every', style: TextStyle(color: AppColors.textSecondary)),
+              const SizedBox(width: 12),
+              SizedBox(
+                width: 60,
+                child: TextField(
+                  controller: _intervalCtrl,
+                  keyboardType: TextInputType.number,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: AppColors.textPrimary),
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: AppColors.card,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                  ),
+                  onChanged: (val) {
+                    final parsed = int.tryParse(val);
+                    if (parsed != null && parsed > 0) {
+                      _interval = parsed;
+                    }
+                  },
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Text('weeks', style: TextStyle(color: AppColors.textSecondary)),
+            ],
+          ),
+          const SizedBox(height: 20),
+          const Text('Repeat on', style: TextStyle(color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: List.generate(7, (index) {
+              final dayNum = index + 1;
+              final isSelected = _selectedDays.contains(dayNum);
+              final label = ['M', 'T', 'W', 'T', 'F', 'S', 'S'][index];
+              return ChoiceChip(
+                label: Text(label, style: TextStyle(color: isSelected ? Colors.white : AppColors.textSecondary)),
+                selected: isSelected,
+                selectedColor: AppColors.primary,
+                backgroundColor: AppColors.card,
+                onSelected: (val) {
+                  setState(() {
+                    if (val) {
+                      _selectedDays.add(dayNum);
+                    } else {
+                      _selectedDays.remove(dayNum);
+                    }
+                  });
+                },
+              );
+            }),
+          ),
+          const SizedBox(height: 20),
+          const Text('Ends', style: TextStyle(color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
+          const SizedBox(height: 10),
+          RadioListTile<String>(
+            title: const Text('Never', style: TextStyle(color: AppColors.textPrimary, fontSize: 14)),
+            value: 'never',
+            groupValue: _endsType,
+            activeColor: AppColors.primary,
+            onChanged: (val) => setState(() => _endsType = val!),
+          ),
+          RadioListTile<String>(
+            title: Row(
+              children: [
+                const Text('On ', style: TextStyle(color: AppColors.textPrimary, fontSize: 14)),
+                TextButton(
+                  onPressed: _endsType != 'date' ? null : () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: _endsOn ?? DateTime.now(),
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime.now().add(const Duration(days: 365 * 10)),
+                    );
+                    if (picked != null) {
+                      setState(() {
+                        _endsOn = picked;
+                      });
+                    }
+                  },
+                  child: Text(_endsOn == null ? 'Select Date' : '${_endsOn!.day}/${_endsOn!.month}/${_endsOn!.year}'),
+                ),
+              ],
+            ),
+            value: 'date',
+            groupValue: _endsType,
+            activeColor: AppColors.primary,
+            onChanged: (val) {
+              setState(() {
+                _endsType = val!;
+                _endsOn ??= DateTime.now().add(const Duration(days: 30));
+              });
+            },
+          ),
+          RadioListTile<String>(
+            title: Row(
+              children: [
+                const Text('After ', style: TextStyle(color: AppColors.textPrimary, fontSize: 14)),
+                SizedBox(
+                  width: 60,
+                  child: TextField(
+                    controller: _afterCtrl,
+                    keyboardType: TextInputType.number,
+                    textAlign: TextAlign.center,
+                    enabled: _endsType == 'after',
+                    style: const TextStyle(color: AppColors.textPrimary),
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: AppColors.card,
+                      contentPadding: const EdgeInsets.symmetric(vertical: 4),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                    ),
+                    onChanged: (val) {
+                      final parsed = int.tryParse(val);
+                      if (parsed != null && parsed > 0) {
+                        _endsAfter = parsed;
+                      }
+                    },
+                  ),
+                ),
+                const SizedBox(width: 12),
+                const Text('occurrences', style: TextStyle(color: AppColors.textPrimary, fontSize: 14)),
+              ],
+            ),
+            value: 'after',
+            groupValue: _endsType,
+            activeColor: AppColors.primary,
+            onChanged: (val) => setState(() => _endsType = val!),
+          ),
+          const SizedBox(height: 24),
+          SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: ElevatedButton(
+              onPressed: () {
+                final days = _selectedDays.isEmpty ? null : _selectedDays.join(',');
+                final endsOn = _endsType == 'date' ? _endsOn : null;
+                final endsAfter = _endsType == 'after' ? _endsAfter : null;
+                widget.onSave(_interval, days, endsOn, endsAfter);
+                Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              ),
+              child: const Text('Done', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+            ),
+          ),
+        ],
       ),
     );
   }

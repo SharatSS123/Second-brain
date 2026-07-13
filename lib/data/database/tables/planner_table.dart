@@ -12,6 +12,13 @@ class PlannerActivitiesTable extends Table {
   TextColumn get description => text().nullable()();
   IntColumn get reminderMinutes => integer().nullable()();
   TextColumn get repeatType => text().withDefault(const Constant('none'))();
+  TextColumn get recurrenceParentId => text().nullable()();
+  DateTimeColumn get recurrenceExceptionDate => dateTime().nullable()();
+  BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
+  IntColumn get repeatInterval => integer().withDefault(const Constant(1))();
+  TextColumn get repeatDaysOfWeek => text().nullable()();
+  DateTimeColumn get repeatEndsOn => dateTime().nullable()();
+  IntColumn get repeatEndsAfter => integer().nullable()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 
   @override

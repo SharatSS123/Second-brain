@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -19,12 +18,10 @@ class DashboardScreen extends ConsumerWidget {
     final activities = ref.watch(homeTodayActivitiesProvider).value ?? [];
     final todos = ref.watch(homeTodayTodosProvider).value ?? [];
 
-    final total = activities.length;
-    final completed = activities.where((a) => a.isCompleted).length;
-    final inProgress = activities
-        .where((a) => isActiveNow(a.startTime, a.endTime) && !a.isCompleted)
-        .length;
-    final progress = total == 0 ? 0.0 : completed / total;
+    final totalActivities = activities.length;
+    final completedActivities = activities.where((a) => a.isCompleted).length;
+    final totalTodos = todos.length;
+    final completedTodos = todos.where((t) => t.isCompleted).length;
 
     final nowActivity = activities
         .where((a) => isActiveNow(a.startTime, a.endTime) && !a.isCompleted)
@@ -41,8 +38,6 @@ class DashboardScreen extends ConsumerWidget {
       ..sort((a, b) => a.startTime.compareTo(b.startTime));
 
     final upNext = upcoming.isNotEmpty ? upcoming.first : null;
-    final laterToday =
-        upcoming.length > 1 ? upcoming.sublist(1) : <PlannerActivity>[];
 
     return Scaffold(
       backgroundColor: AppColors.bg,
@@ -140,10 +135,10 @@ class DashboardScreen extends ConsumerWidget {
 
                   // ── Progress Card ────────────────────────────────────────
                   _ProgressCard(
-                    progress: progress,
-                    completed: completed,
-                    total: total,
-                    inProgress: inProgress,
+                    completedActivities: completedActivities,
+                    totalActivities: totalActivities,
+                    completedTodos: completedTodos,
+                    totalTodos: totalTodos,
                   ),
                   const SizedBox(height: 20),
 
@@ -163,13 +158,7 @@ class DashboardScreen extends ConsumerWidget {
                     const SizedBox(height: 20),
                   ],
 
-                  // ── LATER TODAY ──────────────────────────────────────────
-                  if (laterToday.isNotEmpty) ...[
-                    _sectionLabel('LATER TODAY'),
-                    const SizedBox(height: 8),
-                    ...laterToday.take(3).map((a) => _LaterRow(activity: a)),
-                    const SizedBox(height: 20),
-                  ],
+
 
                   // ── TO DO ────────────────────────────────────────────────
                   _HomeTodoSection(todos: todos, ref: ref),
@@ -207,22 +196,23 @@ class DashboardScreen extends ConsumerWidget {
 
 class _ProgressCard extends StatelessWidget {
   const _ProgressCard({
-    required this.progress,
-    required this.completed,
-    required this.total,
-    required this.inProgress,
+    required this.completedActivities,
+    required this.totalActivities,
+    required this.completedTodos,
+    required this.totalTodos,
   });
-  final double progress;
-  final int completed;
-  final int total;
-  final int inProgress;
+  final int completedActivities;
+  final int totalActivities;
+  final int completedTodos;
+  final int totalTodos;
 
   @override
   Widget build(BuildContext context) {
-    final percent = (progress * 100).round();
+    final activityProgress = totalActivities == 0 ? 0.0 : completedActivities / totalActivities;
+    final todoProgress = totalTodos == 0 ? 0.0 : completedTodos / totalTodos;
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         gradient: const LinearGradient(
@@ -230,72 +220,52 @@ class _ProgressCard extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF6D28D9).withValues(alpha: 0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const Text(
+            "Today's Progress",
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w700,
+              fontSize: 15,
+              letterSpacing: 0.3,
+            ),
+          ),
+          const SizedBox(height: 18),
           Row(
             children: [
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "Today's Progress",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 15),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      total == 0
-                          ? 'No activities planned'
-                          : '$completed of $total activities completed',
-                      style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.75),
-                          fontSize: 12),
-                    ),
-                  ],
+                child: _ProgressSection(
+                  title: 'Activities',
+                  completed: completedActivities,
+                  total: totalActivities,
+                  progress: activityProgress,
+                  icon: Icons.calendar_today_rounded,
                 ),
               ),
-              SizedBox(
-                width: 72,
-                height: 72,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    CustomPaint(
-                      size: const Size(72, 72),
-                      painter: _CircleProgressPainter(progress: progress),
-                    ),
-                    Text(
-                      '$percent%',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ],
+              Container(
+                height: 40,
+                width: 1,
+                color: Colors.white.withValues(alpha: 0.2),
+              ),
+              Expanded(
+                child: _ProgressSection(
+                  title: 'To-dos',
+                  completed: completedTodos,
+                  total: totalTodos,
+                  progress: todoProgress,
+                  icon: Icons.check_box_outlined,
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              _StatChip(value: total, label: 'Total Activities'),
-              const SizedBox(width: 8),
-              _StatChip(
-                  value: inProgress,
-                  label: 'In Progress',
-                  color: AppColors.amber),
-              const SizedBox(width: 8),
-              _StatChip(
-                  value: completed,
-                  label: 'Completed',
-                  color: AppColors.green),
             ],
           ),
         ],
@@ -304,78 +274,79 @@ class _ProgressCard extends StatelessWidget {
   }
 }
 
-class _StatChip extends StatelessWidget {
-  const _StatChip({required this.value, required this.label, this.color});
-  final int value;
-  final String label;
-  final Color? color;
+class _ProgressSection extends StatelessWidget {
+  const _ProgressSection({
+    required this.title,
+    required this.completed,
+    required this.total,
+    required this.progress,
+    required this.icon,
+  });
+
+  final String title;
+  final int completed;
+  final int total;
+  final double progress;
+  final IconData icon;
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Column(
-          children: [
-            Text(
-              '$value',
-              style: TextStyle(
-                color: color ?? Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
+    return Row(
+      children: [
+        const SizedBox(width: 10),
+        SizedBox(
+          width: 42,
+          height: 42,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              SizedBox(
+                width: 42,
+                height: 42,
+                child: CircularProgressIndicator(
+                  value: progress,
+                  strokeWidth: 3.5,
+                  backgroundColor: Colors.white.withValues(alpha: 0.15),
+                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
               ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              label,
-              style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.7),
-                  fontSize: 10),
-              textAlign: TextAlign.center,
-            ),
-          ],
+              Icon(
+                icon,
+                color: Colors.white,
+                size: 16,
+              ),
+            ],
+          ),
         ),
-      ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.7),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                '$completed/$total completed',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
-}
-
-class _CircleProgressPainter extends CustomPainter {
-  final double progress;
-  _CircleProgressPainter({required this.progress});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2 - 5;
-    final trackPaint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.2)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 5;
-    final progressPaint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 5
-      ..strokeCap = StrokeCap.round;
-    canvas.drawCircle(center, radius, trackPaint);
-    if (progress > 0) {
-      canvas.drawArc(
-        Rect.fromCircle(center: center, radius: radius),
-        -pi / 2,
-        2 * pi * progress,
-        false,
-        progressPaint,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(_CircleProgressPainter old) =>
-      old.progress != progress;
 }
 
 // ── NOW Card ───────────────────────────────────────────────────────────────────
@@ -522,58 +493,7 @@ class _UpNextCard extends StatelessWidget {
   }
 }
 
-// ── Later Row ──────────────────────────────────────────────────────────────────
 
-class _LaterRow extends StatelessWidget {
-  const _LaterRow({required this.activity});
-  final PlannerActivity activity;
-
-  @override
-  Widget build(BuildContext context) {
-    final (color, icon) = categoryStyle(activity.category);
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border, width: 0.5),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 34,
-            height: 34,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(9),
-            ),
-            child: Icon(icon, color: color, size: 16),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(activity.title,
-                    style: const TextStyle(
-                        color: AppColors.textPrimary,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500)),
-                Text(
-                    '${displayTime(activity.startTime)} – ${displayTime(activity.endTime)}',
-                    style: const TextStyle(
-                        color: AppColors.textMuted, fontSize: 11)),
-              ],
-            ),
-          ),
-          const Icon(Icons.chevron_right_rounded,
-              color: AppColors.textMuted, size: 18),
-        ],
-      ),
-    );
-  }
-}
 
 // ── Home Todo Section ──────────────────────────────────────────────────────────
 
@@ -584,6 +504,12 @@ class _HomeTodoSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final unchecked = todos.where((t) => !t.isCompleted).toList();
+    final displayedTodos = unchecked.isNotEmpty ? unchecked : todos;
+
+    final showViewAll = displayedTodos.length > 3;
+    final todosToShow = showViewAll ? displayedTodos.take(3).toList() : displayedTodos;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -591,7 +517,7 @@ class _HomeTodoSection extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              todos.isEmpty ? 'TO DO' : 'TO DO (${todos.length})',
+              displayedTodos.isEmpty ? 'TO DO' : 'TO DO (${displayedTodos.length})',
               style: const TextStyle(
                 color: AppColors.textMuted,
                 fontSize: 11,
@@ -600,15 +526,15 @@ class _HomeTodoSection extends StatelessWidget {
               ),
             ),
             GestureDetector(
-              onTap: () => context.go('/day'),
-              child: const Text('View',
-                  style: TextStyle(
+              onTap: () => context.go('/day?expand_todo=true'),
+              child: Text(showViewAll ? 'View All' : 'View',
+                  style: const TextStyle(
                       color: AppColors.primary, fontSize: 12)),
             ),
           ],
         ),
         const SizedBox(height: 10),
-        if (todos.isEmpty)
+        if (displayedTodos.isEmpty)
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
@@ -627,26 +553,14 @@ class _HomeTodoSection extends StatelessWidget {
               ],
             ),
           )
-        else
-          Container(
-            decoration: BoxDecoration(
-              color: AppColors.card,
-              borderRadius: BorderRadius.circular(12),
-              border:
-                  Border.all(color: AppColors.border, width: 0.5),
-            ),
-            child: Column(
-              children: [
-                ...todos.map((todo) => _HomeTodoRow(
-                      todo: todo,
-                      onToggle: () => ref
-                          .read(plannerRepositoryProvider)
-                          .toggleTodo(todo.id, todo.isCompleted),
-                      isLast: todo == todos.last,
-                    )),
-              ],
-            ),
-          ),
+        else ...[
+          ...todosToShow.map((todo) => _HomeTodoRow(
+                todo: todo,
+                onToggle: () => ref
+                    .read(plannerRepositoryProvider)
+                    .toggleTodo(todo.id, todo.isCompleted, targetDate: DateTime.now()),
+              )),
+        ],
       ],
     );
   }
@@ -656,19 +570,22 @@ class _HomeTodoRow extends StatelessWidget {
   const _HomeTodoRow({
     required this.todo,
     required this.onToggle,
-    required this.isLast,
   });
   final DayTodo todo;
   final VoidCallback onToggle;
-  final bool isLast;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Padding(
-          padding:
-              const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.card,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: AppColors.border, width: 0.5),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           child: Row(
             children: [
               GestureDetector(
@@ -703,7 +620,7 @@ class _HomeTodoRow extends StatelessWidget {
                     color: todo.isCompleted
                         ? AppColors.textMuted
                         : AppColors.textPrimary,
-                    fontSize: 14,
+                    fontSize: 13,
                     decoration: todo.isCompleted
                         ? TextDecoration.lineThrough
                         : null,
@@ -715,13 +632,7 @@ class _HomeTodoRow extends StatelessWidget {
             ],
           ),
         ),
-        if (!isLast)
-          const Divider(
-              height: 0,
-              color: AppColors.divider,
-              thickness: 0.5,
-              indent: 46),
-      ],
+      ),
     );
   }
 }
