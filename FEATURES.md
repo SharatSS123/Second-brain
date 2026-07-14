@@ -93,3 +93,10 @@ Cortex is an intelligent personal assistant and "second brain" application built
     *   **Entire series**: Modifies the properties of the original master series template directly.
 *   **Timeline Recurrence Badge**: Timeline rows display a subtle recurrence indicator (e.g., *"Daily"*, *"Every weekday"*, *"Weekly on Mon, Wed"*) underneath the time range.
 *   **Virtual Evaluation Engine**: Computes and expands repeating occurrences in memory on streams, dynamically filtering out deleted exceptions and overlaying modified single occurrences.
+
+### 17. Vault and UI Refinements
+*   **Disabled Vault Media Features**: Cleaned up the Knowledge Vault screen by intercepting clicks on the "Docs", "Images", "Videos", and "Audio" filters with a "coming soon" prompt, and removed "Note" and "Image" types from the "Save to Vault" dropdown.
+*   **Clean Home To-Dos**: Removed the navigation chevron/arrow button from the dashboard home to-do rows, keeping the card representation clean and simple.
+*   **Navigation Cleanup**: Removed the redundant "Tasks" shortcut tile from the "More" screen and the "More" bottom navigation sheet.
+*   **Smart Activity Time Blocking**: Setting a start time when adding a new activity automatically increments the end time by 1 hour (representing a standard 1-hour duration), with the option for manual override.
+*   **PIN Change & Security Settings**: Integrated a brand new full-screen Security Settings dashboard containing biometrics toggling and a secure, multi-step PIN change utility with verification, input matching, and error feedback animations.

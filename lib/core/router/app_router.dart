@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../shared/widgets/main_scaffold.dart';
 import '../../features/dashboard/presentation/dashboard_screen.dart';
+import '../../features/auth/presentation/security_screen.dart';
 import '../../features/day/presentation/day_screen.dart';
 import '../../features/planner/presentation/planner_screen.dart';
 import '../../features/tasks/presentation/tasks_screen.dart';
@@ -89,6 +90,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/templates',
         builder: (context, state) => const TemplatesScreen(),
+      ),
+      GoRoute(
+        path: '/security',
+        builder: (context, state) => const SecurityScreen(),
       ),
       GoRoute(
         path: '/entertainment/movies',

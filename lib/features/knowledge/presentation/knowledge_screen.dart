@@ -64,7 +64,18 @@ class _KnowledgeScreenState extends ConsumerState<KnowledgeScreen> {
                   label: f,
                   icon: _filterIcon(f),
                   selected: selected,
-                  onTap: () => setState(() => _filter = f),
+                  onTap: () {
+                    if (f == 'Docs' || f == 'Images' || f == 'Videos' || f == 'Audio') {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('$f feature coming soon'),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    } else {
+                      setState(() => _filter = f);
+                    }
+                  },
                 );
               }).toList(),
             ),
@@ -398,84 +409,86 @@ class _AddVaultSheetState extends State<_AddVaultSheet> {
         left: 20, right: 20, top: 20,
         bottom: MediaQuery.of(context).viewInsets.bottom + 24,
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Center(
-            child: Container(
-              width: 36, height: 4,
-              decoration: BoxDecoration(
-                color: AppColors.border,
-                borderRadius: BorderRadius.circular(2),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 36, height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.border,
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 16),
-          const Text('Save to Vault',
-              style: TextStyle(
-                  color: AppColors.textPrimary,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18)),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _titleController,
-            autofocus: true,
-            onChanged: (_) => setState(() {}),
-            style: const TextStyle(color: AppColors.textPrimary),
-            decoration: const InputDecoration(hintText: 'Title *'),
-          ),
-          const SizedBox(height: 12),
-          DropdownButtonFormField<String>(
-            value: _type,
-            dropdownColor: AppColors.card,
-            style: const TextStyle(color: AppColors.textPrimary),
-            decoration: const InputDecoration(labelText: 'Type'),
-            items: ['Link', 'Note', 'Code', 'Idea', 'Image']
-                .map((t) => DropdownMenuItem(value: t, child: Text(t)))
-                .toList(),
-            onChanged: (v) => setState(() => _type = v!),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _contentController,
-            maxLines: 2,
-            style: const TextStyle(color: AppColors.textPrimary),
-            decoration: InputDecoration(
-              hintText: _type == 'Link' ? 'URL or paste link' : 'Content',
+            const SizedBox(height: 16),
+            const Text('Save to Vault',
+                style: TextStyle(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18)),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _titleController,
+              autofocus: true,
+              onChanged: (_) => setState(() {}),
+              style: const TextStyle(color: AppColors.textPrimary),
+              decoration: const InputDecoration(hintText: 'Title *'),
             ),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _sourceController,
-            style: const TextStyle(color: AppColors.textPrimary),
-            decoration: const InputDecoration(hintText: 'Source (optional)'),
-          ),
-          const SizedBox(height: 20),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-              style: FilledButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                padding: const EdgeInsets.symmetric(vertical: 14),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<String>(
+              value: _type,
+              dropdownColor: AppColors.card,
+              style: const TextStyle(color: AppColors.textPrimary),
+              decoration: const InputDecoration(labelText: 'Type'),
+              items: ['Link', 'Code', 'Idea']
+                  .map((t) => DropdownMenuItem(value: t, child: Text(t)))
+                  .toList(),
+              onChanged: (v) => setState(() => _type = v!),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _contentController,
+              maxLines: 2,
+              style: const TextStyle(color: AppColors.textPrimary),
+              decoration: InputDecoration(
+                hintText: _type == 'Link' ? 'URL or paste link' : 'Content',
               ),
-              onPressed: _isSaving || _titleController.text.trim().isEmpty
-                  ? null
-                  : () async {
-                      setState(() => _isSaving = true);
-                      await widget.onAdd(
-                        _titleController.text.trim(),
-                        _type,
-                        _contentController.text.trim(),
-                        _sourceController.text.trim(),
-                      );
-                      if (mounted) Navigator.of(context).pop();
-                    },
-              child: const Text('Save',
-                  style: TextStyle(fontWeight: FontWeight.w600)),
             ),
-          ),
-        ],
+            const SizedBox(height: 12),
+            TextField(
+              controller: _sourceController,
+              style: const TextStyle(color: AppColors.textPrimary),
+              decoration: const InputDecoration(hintText: 'Source (optional)'),
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+                onPressed: _isSaving || _titleController.text.trim().isEmpty
+                    ? null
+                    : () async {
+                        setState(() => _isSaving = true);
+                        await widget.onAdd(
+                          _titleController.text.trim(),
+                          _type,
+                          _contentController.text.trim(),
+                          _sourceController.text.trim(),
+                        );
+                        if (mounted) Navigator.of(context).pop();
+                      },
+                child: const Text('Save',
+                    style: TextStyle(fontWeight: FontWeight.w600)),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

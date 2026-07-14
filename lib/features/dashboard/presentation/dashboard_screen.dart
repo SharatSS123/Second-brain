@@ -627,8 +627,6 @@ class _HomeTodoRow extends StatelessWidget {
                   ),
                 ),
               ),
-              const Icon(Icons.chevron_right_rounded,
-                  color: AppColors.textMuted, size: 16),
             ],
           ),
         ),

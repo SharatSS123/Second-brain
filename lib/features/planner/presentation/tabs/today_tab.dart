@@ -521,7 +521,10 @@ class _AddActivitySheetState extends State<_AddActivitySheet> {
                 child: _TimePicker(
                   label: 'Start',
                   value: _start,
-                  onChanged: (t) => setState(() => _start = t),
+                  onChanged: (t) => setState(() {
+                    _start = t;
+                    _end = TimeOfDay(hour: (t.hour + 1) % 24, minute: t.minute);
+                  }),
                 ),
               ),
               const SizedBox(width: 12),

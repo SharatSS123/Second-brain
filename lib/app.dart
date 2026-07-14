@@ -24,7 +24,7 @@ class CortexApp extends ConsumerWidget {
       routerConfig: router,
       debugShowCheckedModeBanner: false,
       builder: (context, child) {
-        return switch (authStatus) {
+        final screen = switch (authStatus) {
           AuthStatus.unknown        => const _SplashView(),
           AuthStatus.profileNotSet  => const ProfileSetupScreen(),
           AuthStatus.pinNotSet      => const PinSetupScreen(),
@@ -32,6 +32,17 @@ class CortexApp extends ConsumerWidget {
           AuthStatus.locked         => const LockScreen(),
           AuthStatus.unlocked       => child ?? const SizedBox.shrink(),
         };
+
+        if (authStatus == AuthStatus.unknown || authStatus == AuthStatus.unlocked) {
+          return screen;
+        }
+
+        return Navigator(
+          key: ValueKey(authStatus),
+          onGenerateRoute: (settings) => MaterialPageRoute(
+            builder: (context) => screen,
+          ),
+        );
       },
     );
   }

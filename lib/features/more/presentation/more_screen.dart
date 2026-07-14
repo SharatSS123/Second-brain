@@ -23,13 +23,6 @@ class MoreScreen extends StatelessWidget {
         children: [
           const _SectionLabel('Features'),
           _MoreTile(
-            icon: Icons.check_circle_rounded,
-            color: AppColors.primary,
-            label: 'Tasks',
-            subtitle: 'Manage your to-do list',
-            onTap: () => context.push('/tasks'),
-          ),
-          _MoreTile(
             icon: Icons.movie_rounded,
             color: AppColors.blue,
             label: 'Watch',
@@ -67,9 +60,7 @@ class MoreScreen extends StatelessWidget {
             color: AppColors.green,
             label: 'Security',
             subtitle: 'PIN & biometric settings',
-            onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Security settings coming soon'), behavior: SnackBarBehavior.floating),
-            ),
+            onTap: () => context.push('/security'),
             isLast: true,
           ),
         ],

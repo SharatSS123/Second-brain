@@ -122,12 +122,6 @@ class _MoreSheet extends StatelessWidget {
 
   static const _items = [
     _MoreItem(
-      icon: Icons.check_circle_outline_rounded,
-      label: 'Tasks',
-      color: AppColors.green,
-      path: '/tasks',
-    ),
-    _MoreItem(
       icon: Icons.school_rounded,
       label: 'Learn',
       color: AppColors.amber,
