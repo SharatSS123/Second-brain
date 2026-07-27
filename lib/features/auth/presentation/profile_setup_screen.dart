@@ -135,11 +135,11 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                   const SizedBox(height: 32),
 
                   // Name
-                  _FieldLabel(label: 'Your Name', required: true),
+                  const _FieldLabel(label: 'Your Name', required: true),
                   const SizedBox(height: 6),
                   _InputField(
                     controller: _nameCtrl,
-                    hint: 'e.g. Sharat Sankar',
+                    hint: 'e.g. John Smith',
                     icon: Icons.person_outline_rounded,
                     keyboardType: TextInputType.name,
                     onChanged: (_) => setState(() {}),
@@ -148,7 +148,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                   const SizedBox(height: 20),
 
                   // Email
-                  _FieldLabel(label: 'Email Address', required: false),
+                  const _FieldLabel(label: 'Email Address', required: false),
                   const SizedBox(height: 6),
                   _InputField(
                     controller: _emailCtrl,
@@ -160,7 +160,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                   const SizedBox(height: 20),
 
                   // Date of Birth
-                  _FieldLabel(label: 'Date of Birth', required: false),
+                  const _FieldLabel(label: 'Date of Birth', required: false),
                   const SizedBox(height: 6),
                   GestureDetector(
                     onTap: _pickDob,
@@ -244,7 +244,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                   const SizedBox(height: 32),
 
                   // Step indicator
-                  _OnboardingSteps(current: 0),
+                  const _OnboardingSteps(current: 0),
 
                   const SizedBox(height: 24),
                 ],

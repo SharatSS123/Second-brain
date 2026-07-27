@@ -8,6 +8,12 @@ class ProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final profileAsync = ref.watch(userProfileProvider);
+    final profile = profileAsync.value;
+    final name = profile?.name ?? 'User';
+    final email = profile?.email ?? '';
+    final initial = name.isNotEmpty ? name[0].toUpperCase() : 'U';
+
     return Scaffold(
       backgroundColor: AppColors.bg,
       appBar: AppBar(
@@ -28,9 +34,9 @@ class ProfileScreen extends ConsumerWidget {
                 CircleAvatar(
                   radius: 48,
                   backgroundColor: AppColors.primary.withValues(alpha: 0.2),
-                  child: const Text(
-                    'S',
-                    style: TextStyle(
+                  child: Text(
+                    initial,
+                    style: const TextStyle(
                       color: AppColors.primary,
                       fontSize: 40,
                       fontWeight: FontWeight.w700,
@@ -56,24 +62,26 @@ class ProfileScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 16),
-          const Center(
+          Center(
             child: Text(
-              'Sharat Sankar',
-              style: TextStyle(
+              name,
+              style: const TextStyle(
                 color: AppColors.textPrimary,
                 fontSize: 22,
                 fontWeight: FontWeight.w700,
               ),
             ),
           ),
-          const SizedBox(height: 4),
-          Center(
-            child: Text(
-              'sharat.sankar@gmail.com',
-              style: const TextStyle(
-                  color: AppColors.textSecondary, fontSize: 14),
+          if (email.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Center(
+              child: Text(
+                email,
+                style: const TextStyle(
+                    color: AppColors.textSecondary, fontSize: 14),
+              ),
             ),
-          ),
+          ],
           const SizedBox(height: 8),
           const Center(
             child: _PlanBadge(),

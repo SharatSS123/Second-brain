@@ -29,6 +29,7 @@ class AuthNotifier extends Notifier<AuthStatus> {
           email: email,
           dob: dob,
         );
+    ref.invalidate(userProfileProvider);
     state = AuthStatus.pinNotSet;
   }
 
@@ -57,6 +58,21 @@ class AuthNotifier extends Notifier<AuthStatus> {
 
   void lock() => state = AuthStatus.locked;
 }
+
+class UserProfile {
+  final String name;
+  final String? email;
+
+  UserProfile({required this.name, this.email});
+}
+
+final userProfileProvider = FutureProvider<UserProfile?>((ref) async {
+  final service = ref.watch(authServiceProvider);
+  final name = await service.getProfileName();
+  if (name == null) return null;
+  final email = await service.getProfileEmail();
+  return UserProfile(name: name, email: email);
+});
 
 final authNotifierProvider =
     NotifierProvider<AuthNotifier, AuthStatus>(AuthNotifier.new);

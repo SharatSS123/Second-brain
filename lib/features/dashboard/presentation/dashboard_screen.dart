@@ -8,12 +8,19 @@ import '../../../shared/widgets/main_scaffold.dart';
 import '../../planner/providers/planner_providers.dart';
 import '../../planner/utils/planner_utils.dart';
 import '../../day/presentation/profile_screen.dart';
+import '../../../core/auth/auth_provider.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final profileAsync = ref.watch(userProfileProvider);
+    final profile = profileAsync.value;
+    final name = profile?.name ?? 'User';
+    final firstName = name.split(' ').first;
+    final initial = name.isNotEmpty ? name[0].toUpperCase() : 'U';
+
     final now = DateTime.now();
     final activities = ref.watch(homeTodayActivitiesProvider).value ?? [];
     final todos = ref.watch(homeTodayTodosProvider).value ?? [];
@@ -97,8 +104,8 @@ class DashboardScreen extends ConsumerWidget {
                       radius: 18,
                       backgroundColor:
                           AppColors.primary.withValues(alpha: 0.2),
-                      child: const Text('S',
-                          style: TextStyle(
+                      child: Text(initial,
+                          style: const TextStyle(
                             color: AppColors.primary,
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
@@ -118,7 +125,7 @@ class DashboardScreen extends ConsumerWidget {
 
                   // Greeting
                   Text(
-                    '${_greeting(now.hour)}, Sharat! 👋',
+                    '${_greeting(now.hour)}, $firstName! 👋',
                     style: const TextStyle(
                       color: AppColors.textPrimary,
                       fontSize: 22,

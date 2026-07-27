@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
+import 'package:flutter/foundation.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -11,7 +12,7 @@ class AuthService {
   static const _profileDobKey = 'sb_profile_dob';
   static const _biometricEnabledKey = 'sb_biometric_enabled';
 
-  final _localAuth = LocalAuthentication();
+  final LocalAuthentication? _localAuth = kIsWeb ? null : LocalAuthentication();
 
   Future<bool> isProfileSet() async {
     final prefs = await SharedPreferences.getInstance();
@@ -37,6 +38,12 @@ class AuthService {
     final prefs = await SharedPreferences.getInstance();
     final name = prefs.getString(_profileNameKey);
     return (name == null || name.isEmpty) ? null : name;
+  }
+
+  Future<String?> getProfileEmail() async {
+    final prefs = await SharedPreferences.getInstance();
+    final email = prefs.getString(_profileEmailKey);
+    return (email == null || email.isEmpty) ? null : email;
   }
 
   Future<bool> isBiometricEnabled() async {
@@ -67,6 +74,7 @@ class AuthService {
   }
 
   Future<bool> isBiometricAvailable() async {
+    if (kIsWeb || _localAuth == null) return false;
     try {
       final canCheck = await _localAuth.canCheckBiometrics;
       final isSupported = await _localAuth.isDeviceSupported();
@@ -77,6 +85,7 @@ class AuthService {
   }
 
   Future<List<BiometricType>> availableBiometrics() async {
+    if (kIsWeb || _localAuth == null) return [];
     try {
       return await _localAuth.getAvailableBiometrics();
     } catch (_) {
@@ -85,6 +94,7 @@ class AuthService {
   }
 
   Future<bool> authenticateWithBiometric() async {
+    if (kIsWeb || _localAuth == null) return false;
     try {
       return await _localAuth.authenticate(
         localizedReason: 'Authenticate to open CORTEX',
